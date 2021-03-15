@@ -2,6 +2,65 @@ import random, pygame, sys, time
 from pygame.locals import *
 from pygame import draw
 
+
+## Función principal del juego
+# def main():
+## Se inicializa el juego
+pygame.init()
+
+fps, FPS = 60, 60
+
+# resolucion
+s_width = 800
+s_heigh = 600
+
+pygame.display.set_caption("Local Market")
+screen = pygame.display.set_mode((s_width,s_heigh), pygame.DOUBLEBUF)
+
+#Fuente 
+font = pygame.font.SysFont('mono', 19, bold=True)
+text = font.render("Hello, World", True, (0, 128, 0), (255,255,255))
+
+# Cargar fondo
+fondo = pygame.image.load("img/backgrounds/fondo.png")
+
+#Direccion personaje
+direction = 'down'
+
+player_speed = 4.0
+
+player_x = s_width/2
+player_y = s_heigh/2
+
+
+#carga el tiempo
+start_time = None
+playtime = 0.0
+
+reloj = pygame.time.Clock()
+
+# Declaración de constantes y variables
+WHITE = (255, 255, 255)
+
+key_press = {"left": False, "right": False, "up": False, "down": False}
+
+
+
+def Menu():
+	#Meca Menu inventario
+	''' 
+	TODO
+	Crear un rectangulo HW al 75%
+	Transparentar el rectangulo
+	Dibujar barra superior con titulo
+	distinguir con otro color
+
+	Dibujar pestanias
+	Inventario personaje | opciones
+	'''
+	menu = ''
+
+
 # Stats de tiempo
 class Status():
 	def __init__(self):
@@ -29,6 +88,7 @@ class PlayerMeca():
 	def playerDraw(self, direction):
 		''' Personaje principal '''
 		player = pygame.image.load('img/pnj/playerSprite.png')
+		
 
 		if direction == 'down':
 			player = player.subsurface(0,0,32,64)
@@ -41,60 +101,31 @@ class PlayerMeca():
 		return player
 
 
-## Función principal del juego
-# def main():
-## Se inicializa el juego
-pygame.init()
+def tiempito(playtime, clock, fps):
+	# if start_time:
+	# 	time_since_start = pygame.time.get_ticks() - start_time
+	# 	msg = 'Milisegundos desde el inicio: '+str(time_since_start)
+	# 	screen.blit(font.render(msg, True, (100,100,100)), (30, 30))
+
+	milliseconds = clock.tick(fps)
+	playtime += milliseconds / 1000.0
+	draw_text("FPS: {:6.3}{}PLAYTIME: {:6.3} SECONDS\nPosPlayer: {}"
+		.format(clock.get_fps(), " "*5, playtime, str(player_x)+' '+str(player_y)))
 
 
-FPS = 60
-fpsClock = pygame.time.Clock()
-
-# resolucion
-s_width = 800
-s_heigh = 600
-
-pygame.display.set_caption("Local Market")
-screen = pygame.display.set_mode((s_width,s_heigh))
-
-# Cargar fondo
-fondo = pygame.image.load("img/backgrounds/fondo.png")
-
-#Direccion personaje
-direction = 'down'
-
-player_speed = 2.0
-
-player_x = s_width/2
-player_y = s_heigh/2
-
-#carga el tiempo
-start_time = None
-clock = pygame.time.Clock()
-
-# Declaración de constantes y variables
-WHITE = (255, 255, 255)
-
-key_press = {"left": False, "right": False, "up": False, "down": False}
-
-
-#Meca Menu inventario
-''' 
-TODO
-Crear un rectangulo HW al 75%
-Transparentar el rectangulo
-Dibujar barra superior con titulo
-distinguir con otro color
-
-Dibujar pestanias
-Inventario personaje | opciones
-'''
-menu = ''
+def draw_text(text):
+	"""Center text in window"""
+	fw, fh = font.size(text)
+	surface = font.render(text, True, (0, 0, 0))
+	screen.blit(surface, (5,15))
 
 
 player = PlayerMeca()
+
+
 # Bucle principal
-while True:
+runing = True
+while runing:
 	
 	# 1.- Se dibuja la pantalla
 	screen.fill(WHITE)
@@ -118,9 +149,10 @@ while True:
 	# 2.- Se comprueban los eventos
 	for event in pygame.event.get():
 		if event.type == QUIT:
-			pygame.quit()
-			sys.exit(0)
+			runing = False
 		elif event.type == pygame.KEYDOWN:
+			if event.key == K_ESCAPE:
+				runing = False
 			if event.key == K_LEFT or event.key == K_a:
 				key_press["left"] = True
 			if event.key == K_RIGHT or event.key == K_d:
@@ -139,25 +171,42 @@ while True:
 			if event.key == pygame.K_DOWN or event.key == K_s:
 				key_press["down"] = False
 
-	if key_press["left"]:# == True is implied here
-		direction = 'left'
-		player_x -= player_speed
+	if key_press["left"]:# == Si left es verdadero
+		if player_x <= 0:
+			direction = 'left'
+		else:
+			direction = 'left'
+			player_x -= player_speed
 	if key_press["right"]:
-		direction = 'right'
-		player_x += player_speed
+		if  player_x+32 >= s_width:
+			direction = 'right'
+		else:
+			direction = 'right'
+			player_x += player_speed
 	if key_press["up"]:
-		direction = 'up'
-		player_y -= player_speed
+		if  player_y <= 0:
+			direction = 'up'
+		else:
+			direction = 'up'
+			player_y -= player_speed
 	if key_press["down"]:
-		direction = 'down'
-		player_y += player_speed
+		if  player_y+265 >= s_width: ## Arregla la medida del sprite para que quede a 64
+			direction = 'down'
+		else:
+			direction = 'down'
+			player_y += player_speed
 
 	
 	# print(mouse)
+	tiempito(playtime, reloj, fps)
 
 	# 3.- Se actualiza la pantalla
 	pygame.display.update()
-	clock.tick(FPS)
+	reloj.tick(fps)
+
+# Salir cuando runing=False
+pygame.quit()
+sys.exit(0)
 
 # Este fichero es el que ejecuta el juego principal
 # if __name__ == '__main__':

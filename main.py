@@ -2,12 +2,25 @@
 # -*- coding: utf-8 -*-
 import pygame
 import sys
+import time
+import os
+
+
+# import os
 from pygame.locals import *
 
 
-'''
-    Caracteristicas por agregar
+'''Caracteristicas por agregar
     
+    Colisiones
+        
+    Sistema de dialogos
+
+    Sistema de movimiento
+    
+    Sistema de efectos
+        Quiza lo tenga cada objeto...
+
     Mostrar menu del jugador
         Menus:
     
@@ -16,7 +29,8 @@ from pygame.locals import *
             Salud
             Hambre
             Resistencias
-                calor, frio, agua, fuego, electricidad, amor, aburrimiento, tristeza, veneno, rechazo, friendzone :V, asfixia
+                calor, frio, agua, fuego, electricidad, amor, aburrimiento,
+                tristeza, veneno, rechazo, friendzone :V, asfixia
 
         Economia (Dinero, propiedades, negocios)
             Dinero total
@@ -49,7 +63,16 @@ from pygame.locals import *
         retroville
         retrogaming
 
+    
+    
+
+
+
 '''
+
+# ############################################################################
+# Funciones de debugeo
+# ############################################################################
 
 
 def show_fonts():
@@ -60,6 +83,9 @@ def show_fonts():
         print(f)
 
 
+# ############################################################################
+# Loading Starting System...
+# ############################################################################
 
 pygame.init()
 # Iniciando pygame...
@@ -70,13 +96,17 @@ pygame.display.set_caption("Local Market")
 
 
 # Tiempo, horas etc.
-clock = pygame.time.Clock()
+# clock = pygame.time.Clock()
+prev_time = time.time()
+clock = time.time()
+diff = 0
 # global_ticks = 0
-# global_time = 0
+global_time = 0
 
 # Fuente
 font = pygame.font.SysFont('consolas', 14, bold=True)
 fps = 60
+fps_out = 0
 
 count = 0  # Global
 playtime_total = 0.0  # Global
@@ -87,7 +117,7 @@ direction = 'down'
 fondo = pygame.image.load("img/backgrounds/fondo.png")
 
 # Direccion velocidad del personaje
-player_speed = 4.0
+player_speed = 0.9
 
 # Declaración de constantes y variables
 WHITE = (255, 255, 255)
@@ -100,61 +130,20 @@ key_press = {"left": False,
              "p_key": False}
 
 
-
-def draw_text(text, font, color, surface, x, y):
-    """ Dibuja texto en pantalla """
-    fw, fh = font.size(text)
-    surface = font.render(text, True, (0, 0, 0), (255, 255, 255, 100))
-    screen.blit(surface, (x, y))
-
-def time_control():
-    ''' Inicia el control de tiempo global 
-        
-        muestra informacion del tiempo
-        ticks
-        hora especifica
-    '''
-    global global_ticks
-    global global_time
-
-    # Obten los ticks
-    global_ticks = pygame.time.get_ticks()
-    # Transforma ticks a segundos
-    global_time = global_ticks / 1000
-    if click == True:
-        time_show()
+# player_dialoge = {wellcome: "Hello"}
+# png_dialoge = {wellcome: 'Hello {}.'.format(name)}
 
 
-def time_show():
-    draw_text("ticks: {} » {}".format(global_ticks, global_time),
-              font, BLACK, screen, 20, 60)
+# translate = {
+#     esp: {},
+#     rus: {},
+#     jap: {}
+# }
 
 
-def btn_hover(btn, point, color_active, color_hover):
-    ''' Cambia color al pasar el raton sobre el elemento'''
-    collide = btn.collidepoint(point)
-    color = color_hover if collide else color_active
-    pygame.draw.rect(screen, color, btn)
-
-
-def options():
-    global count
-    print("Llamando a opciones: %s :) " % str(count))
-    count += 1
-
-
-def stats():
-    global playtime_total
-    milliseconds = clock.tick(fps)
-    playtime_total += milliseconds / 500.0
-
-    if key_press['p_key'] == False:
-        draw_text("FPS: {:6.3} time in game: {:6.3} segs".format(
-                  clock.get_fps(), playtime_total),
-                  font, WHITE, screen, 20, 20)
-
-        draw_text("Loc(xy): {}, {}".format(player_x, player_y),
-                  font, WHITE, screen, 20, 40)
+# ############################################################################
+# Cargando funciones y metodos
+# ############################################################################
 
 
 class PlayerMeca():
@@ -179,8 +168,104 @@ class PlayerMeca():
         return player
 
 
+class Player(pygame.sprite.Sprite):
+    """Agregar personajes, jugadores etc..."""
+    def __init__(self):
+        # pygame.sprite.Sprite.__init__(self)
+        super().___init__()
+        # self.image = pygame.image.load(filename)
+        self.image = pygame.Surface((50, 50))
+        self.image.fill('red', 1)
+        self.rect = self.image.get_rect()
+        self.image.center = (s_width / 2, s_height / 2)
+
+
+
+
+def time_control():
+    '''Inicia el control de tiempo global 
+        
+        muestra informacion del tiempo
+        ticks
+        hora especifica
+
+        1000 ticks  =   1 Seg       =   1,000               ticks
+        1 minuto    =   60 segundos =   60,000              ticks
+        1 hora      =   60 minutos  =   36,000,000          ticks
+        1 dia       =   24 horas    =   864,000,000         ticks
+        1 semana    =   7 dias      =   6,048,000,000       ticks
+        1 mes       =   4 semanas   =   24,192,000,000      ticks
+        1 año       =   12 meses    =   290,304,000,000     ticks
+
+    '''
+    global prev_time
+    global fps_out
+    global diff
+    curr_time = time.time()  # Obten tiempo 
+    diff = curr_time - prev_time
+
+    delay = max(1.0/fps - diff, 0)
+    time.sleep(delay)
+    fps_out = 1.0/(delay + diff)
+
+    prev_time = curr_time
+    # print('retraso: ', str(delay), 'FPS: ' + str(fps_out) + ' Segundos: ' + str(diff))
+    # os.system('cls')
+
+    global global_ticks
+    global global_time
+
+    # Obten los ticks
+    global_ticks = pygame.time.get_ticks()
+    # Transforma ticks a segundos
+    global_time = global_ticks / 1000
+    if click == True:
+        time_show()
+
+def draw_text(text, font, color, surface, x, y):
+    """ Dibuja texto en pantalla """
+    fw, fh = font.size(text)
+    surface = font.render(text, True, (0, 0, 0), (255, 255, 255, 100))
+    screen.blit(surface, (x, y))
+
+
+
+def time_show():
+    draw_text("ticks: {:2.3f} » Segundos: {:2.3f}".format(global_ticks, global_time),
+              font, BLACK, screen, 20, 60)
+
+
+def btn_draw(btn, point, color_active, color_hover):
+    '''Cambia color al pasar el raton sobre el elemento'''
+    collide = btn.collidepoint(point)
+    color = color_hover if collide else color_active
+    pygame.draw.rect(screen, color, btn)
+
+
+def options():
+    global count
+    print("Llamando a opciones: %s :) " % str(count))
+    count += 1
+
+
+def stats():
+
+    # global playtime_total
+    # milliseconds = clock.tick(fps_out)
+    # playtime_total += milliseconds / 500.0
+
+    if key_press['p_key'] == False:
+        draw_text("FPS: {:2.2f} time in game: {:9.2f} segs".format(
+                  fps_out, global_time),
+                  font, WHITE, screen, 20, 20)
+
+        draw_text("Loc(xy): {:4.3f}, {:4.3f}".format(player_x, player_y),
+                  font, WHITE, screen, 20, 40)
+
+
+
 def main_menu():
-    ''' Meca Menu inventario
+    '''Meca Menu inventario
     TODO
     Crear un rectangulo HW al 75%
     Transparentar el rectangulo
@@ -193,12 +278,22 @@ def main_menu():
     global click
     click = False
     while True:
+
         screen.fill((0, 0, 0))
+
+        # ####################################################################
+        # Range colitions
+        # ####################################################################
+
+        pygame.draw.rect(screen, 'blue', (350, 20, 120, 100), 1)
+        pygame.draw.rect(screen, 'green', (400, 60, 120, 100), 4)
+        pygame.draw.rect(screen, 'red', (450, 100, 120, 100), 8)
+
+        # ####################################################################
+
         draw_text('Menu MK2', font, (255, 255, 255), screen, 20, 20)
 
-        time_control()
         mx, my = pygame.mouse.get_pos()
-
         button_1 = pygame.Rect(50, 100, 190, 45)
         button_2 = pygame.Rect(50, 150, 190, 45)
         button_exit = pygame.Rect(50, 200, 190, 45)
@@ -217,11 +312,11 @@ def main_menu():
         # coloreando al pasar
         point = pygame.mouse.get_pos()
 
-        # pygame.draw.rect(screen, color, button_1)
-        # pygame.draw.rect(screen, color, button_2)
-        btn_hover(button_1, point, (100, 100, 100), (255, 100, 100))
-        btn_hover(button_2, point, (100, 100, 100), (255, 100, 100))
-        btn_hover(button_exit, point, (100, 0, 100), (255, 100, 100))
+        btn_draw(button_1, point, ('blueviolet'), (255, 100, 100))
+        btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
+        btn_draw(button_exit, point, (100, 0, 100), (255, 100, 100))
+
+
 
         click = False
 
@@ -239,8 +334,11 @@ def main_menu():
                     click = True
 
             # 3.- Se actualiza la pantalla
+        time_control()
+        time_show()
+        pygame.display.set_caption("Local Market » " + str(fps_out))
         pygame.display.update()
-        clock.tick(fps)
+        # clock.tick(fps)
 
 
 def main_game():
@@ -249,14 +347,14 @@ def main_game():
     # Guardar posicion
     global player_x, player_y
     global direction
-
+    global player_speed
     player = PlayerMeca()
 
     running = True  # Activador del menu
 
     # Bucle principal
     while running:
-        time_control()
+        screen.fill(WHITE)
         # Mostrar fondo
         screen.blit(fondo, (0, 0))
 
@@ -266,7 +364,6 @@ def main_game():
         cubo = pygame.Rect(s_width // 2, s_height // 2, 60, 60)
         pygame.draw.rect(screen, WHITE, cubo)
 
-        time_show()
         # 2.- Se comprueban los eventos
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -327,8 +424,11 @@ def main_game():
         stats()
 
         # 3.- Se actualiza la pantalla
+        time_control()
+        time_show()
+        pygame.display.set_caption("Local Market » " + str(fps_out))
         pygame.display.update()
-        clock.tick(fps)
+        # clock.tick(fps)
 
 
 if __name__ == '__main__':

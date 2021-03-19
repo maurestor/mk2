@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+  <link rel="stylesheet" href="">
+
+
+</head>
+<body>
+
+    <p id=here></p>
+
+
+    <p id=binario></p>
+
+    <p id=recursion></p>
+
+    <p id=recursion_rango></p>
+    
+</body>
+
+  <script>
+    function randomFraction(){
+      let randum = Math.random() * 100;
+      console.log(randum);
+      return randum;
+    }
+    number = randomFraction();
+    document.getElementById('here').innerHTML = number;
+
+
+    function binario(str) {
+      return parseInt(str, 2);
+    }
+    binario = binario('11100011');
+    document.getElementById('binario').innerHTML = binario;
+
+
+    function countdown(n){
+      if (n < 1) {
+        return [];
+      } else {
+        const countArray = countdown(n - 1);
+        countArray.unshift(n);
+        return countArray;
+      }
+    }
+
+    document.getElementById('recursion').innerHTML = countdown(10);
+
+
+    function countdowna(min, max){
+      if (max - min  === 0) {
+        return [max];
+      } else {
+        const countArray = countdowna(min, max - 1);
+        countArray.push(max);
+        return 'Hola';
+      }
+
+    }
+
+    document.getElementById('recursion_rango').innerHTML = countdowna(10, 20);
+  </script>
+
+</html>

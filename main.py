@@ -10,23 +10,19 @@ import os
 from pygame.locals import *
 
 
-<<<<<<< HEAD
-'''
-    Caracteristicas por agregar
-    
-=======
 '''Caracteristicas por agregar
     
     Colisiones
         
     Sistema de dialogos
 
+    Sistema de logros!!!
+
     Sistema de movimiento
     
     Sistema de efectos
         Quiza lo tenga cada objeto...
 
->>>>>>> mk2
     Mostrar menu del jugador
         Menus:
     
@@ -35,12 +31,8 @@ from pygame.locals import *
             Salud
             Hambre
             Resistencias
-<<<<<<< HEAD
-                calor, frio, agua, fuego, electricidad, amor, aburrimiento, tristeza, veneno, rechazo, friendzone :V, asfixia
-=======
                 calor, frio, agua, fuego, electricidad, amor, aburrimiento,
                 tristeza, veneno, rechazo, friendzone :V, asfixia
->>>>>>> mk2
 
         Economia (Dinero, propiedades, negocios)
             Dinero total
@@ -73,22 +65,12 @@ from pygame.locals import *
         retroville
         retrogaming
 
-<<<<<<< HEAD
-'''
-
-=======
-    
-    
-
-
-
 '''
 
 # ############################################################################
 # Funciones de debugeo
 # ############################################################################
 
->>>>>>> mk2
 
 def show_fonts():
     ''' Muestra una lista de las fuentes del OS '''
@@ -98,14 +80,12 @@ def show_fonts():
         print(f)
 
 
-<<<<<<< HEAD
-=======
 # ############################################################################
 # Loading Starting System...
 # ############################################################################
->>>>>>> mk2
-
+# pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
 pygame.init()
+# pygame.mixer.init()
 # Iniciando pygame...
 
 s_width, s_height = (800, 600)
@@ -114,18 +94,12 @@ pygame.display.set_caption("Local Market")
 
 
 # Tiempo, horas etc.
-<<<<<<< HEAD
-clock = pygame.time.Clock()
-# global_ticks = 0
-# global_time = 0
-=======
 # clock = pygame.time.Clock()
 prev_time = time.time()
 clock = time.time()
 diff = 0
 # global_ticks = 0
 global_time = 0
->>>>>>> mk2
 
 # Fuente
 font = pygame.font.SysFont('consolas', 14, bold=True)
@@ -154,9 +128,9 @@ key_press = {"left": False,
              "p_key": False}
 
 
-<<<<<<< HEAD
-=======
+
 # player_dialoge = {wellcome: "Hello"}
+# narrator = {'Hola {}'}
 # png_dialoge = {wellcome: 'Hello {}.'.format(name)}
 
 
@@ -166,10 +140,50 @@ key_press = {"left": False,
 #     jap: {}
 # }
 
-
 # ############################################################################
 # Cargando funciones y metodos
 # ############################################################################
+
+def dialogos(logro_id):
+    '''Dibuja el dialogo a partir del logro realizado.
+    Se le introduce el id de logro, o logros en cola?
+    Guarda los logros en un archivo o una base de datos.
+        si se grabro continua
+    Devuelve el dialogo correspondiente al logro
+
+    '''
+    pass
+
+def audio_effect(name, stop_time, vol):
+    '''Cargar efectos de audio con su nombre 
+    name: menu, start, exit
+    stop_time: Boulean
+    vol: 0.1, 0.5, 1
+    '''
+    # sound = None
+    if name == 'menu':
+        pygame.mixer.music.load('./music/effect_nicholasdaryl_swing.wav')
+        pygame.mixer.music.set_volume(vol)
+        sound = pygame.mixer.music.play()
+    
+    if name == 'start':
+        pygame.mixer.music.load('./music/desktop-login.ogg')
+        pygame.mixer.music.set_volume(vol)
+        sound = pygame.mixer.music.play()
+    
+    if name == 'exit' and stop_time:
+        pygame.mixer.music.load('./music/desktop-logout.ogg')
+        pygame.mixer.music.set_volume(vol)
+        sound = pygame.mixer.music.play()
+        time.sleep(3000)# sound.get_length())
+
+
+def exit_pysys():
+    '''Agrega efecto de audio salida'''
+    audio_effect('exit', True, 0.1)
+    # pygame.quit()
+    # sys.exit(0)
+
 
 
 class PlayerMeca():
@@ -181,7 +195,8 @@ class PlayerMeca():
 
     def playerDraw(self, direction='down'):
         ''' Personaje principal '''
-        player = pygame.image.load('img/pnj/playerSprite.png')
+
+        player = pygame.image.load('img/png/playerSprite.png')
 
         if direction == 'down':
             player = player.subsurface(0, 0, 32, 64)
@@ -197,15 +212,12 @@ class PlayerMeca():
 class Player(pygame.sprite.Sprite):
     """Agregar personajes, jugadores etc..."""
     def __init__(self):
-        # pygame.sprite.Sprite.__init__(self)
-        super().___init__()
-        # self.image = pygame.image.load(filename)
+        super().__init__()
+        # self.image = pygame.image.load("./img/spritegral.png")
         self.image = pygame.Surface((50, 50))
-        self.image.fill('red', 1)
+        self.image.fill((255, 255, 255))
         self.rect = self.image.get_rect()
-        self.image.center = (s_width / 2, s_height / 2)
-
-
+        self.rect.center = (s_width / 2, s_height / 2)
 
 
 def time_control():
@@ -247,7 +259,6 @@ def time_control():
     global_time = global_ticks / 1000
     if click == True:
         time_show()
->>>>>>> mk2
 
 def draw_text(text, font, color, surface, x, y):
     """ Dibuja texto en pantalla """
@@ -255,32 +266,9 @@ def draw_text(text, font, color, surface, x, y):
     surface = font.render(text, True, (0, 0, 0), (255, 255, 255, 100))
     screen.blit(surface, (x, y))
 
-def time_control():
-    ''' Inicia el control de tiempo global 
-        
-        muestra informacion del tiempo
-        ticks
-        hora especifica
-    '''
-    global global_ticks
-    global global_time
-
-    # Obten los ticks
-    global_ticks = pygame.time.get_ticks()
-    # Transforma ticks a segundos
-    global_time = global_ticks / 1000
-    if click == True:
-        time_show()
-
 
 def time_show():
-    draw_text("ticks: {} » {}".format(global_ticks, global_time),
-              font, BLACK, screen, 20, 60)
-
-
-
-def time_show():
-    draw_text("ticks: {:2.3f} » Segundos: {:2.3f}".format(global_ticks, global_time),
+    draw_text("ticks: {:2.3f} » Segundos: {}".format(global_ticks, global_time),
               font, BLACK, screen, 20, 60)
 
 
@@ -298,42 +286,6 @@ def options():
 
 
 def stats():
-<<<<<<< HEAD
-    global playtime_total
-    milliseconds = clock.tick(fps)
-    playtime_total += milliseconds / 500.0
-
-    if key_press['p_key'] == False:
-        draw_text("FPS: {:6.3} time in game: {:6.3} segs".format(
-                  clock.get_fps(), playtime_total),
-                  font, WHITE, screen, 20, 20)
-
-        draw_text("Loc(xy): {}, {}".format(player_x, player_y),
-                  font, WHITE, screen, 20, 40)
-
-
-class PlayerMeca():
-    '''set controls '''
-
-    def __init__(self, name='', gender='', options=[], active='',
-                 multi=''):
-        pass
-
-    def playerDraw(self, direction='down'):
-        ''' Personaje principal '''
-        player = pygame.image.load('img/pnj/playerSprite.png')
-
-        if direction == 'down':
-            player = player.subsurface(0, 0, 32, 64)
-        elif direction == 'right':
-            player = player.subsurface(32, 0, 32, 64)
-        elif direction == 'up':
-            player = player.subsurface(64, 0, 32, 64)
-        elif direction == 'left':
-            player = player.subsurface(96, 0, 32, 64)
-        return player
-
-=======
 
     # global playtime_total
     # milliseconds = clock.tick(fps_out)
@@ -348,8 +300,9 @@ class PlayerMeca():
                   font, WHITE, screen, 20, 40)
 
 
->>>>>>> mk2
-
+# ############################################################################
+# Inicio del juego
+# ############################################################################
 def main_menu():
     '''Meca Menu inventario
     TODO
@@ -364,6 +317,7 @@ def main_menu():
     global click
     click = False
     while True:
+
         screen.fill((0, 0, 0))
 
         # ####################################################################
@@ -378,7 +332,6 @@ def main_menu():
 
         draw_text('Menu MK2', font, (255, 255, 255), screen, 20, 20)
 
-        time_control()
         mx, my = pygame.mouse.get_pos()
         button_1 = pygame.Rect(50, 100, 190, 45)
         button_2 = pygame.Rect(50, 150, 190, 45)
@@ -389,11 +342,11 @@ def main_menu():
                 main_game()
         if button_2.collidepoint((mx, my)):
             if click:
-                options()
+                options_menu()
         if button_exit.collidepoint((mx, my)):
             if click:
                 pygame.quit()
-                sys.exit(0)
+                sys.exit()
 
         # coloreando al pasar
         point = pygame.mouse.get_pos()
@@ -402,14 +355,90 @@ def main_menu():
         btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
         btn_draw(button_exit, point, (100, 0, 100), (255, 100, 100))
 
-
+        all_sprites = pygame.sprite.Group()
+        player_one = Player()
+        all_sprites.add(player_one)
 
         click = False
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-                sys.exit(0)
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == K_ESCAPE:
+                    main_game()
+                    # pygame.quit()
+                    # sys.exit(0)
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+
+            # 3.- Se actualiza la pantalla
+        pygame.display.flip()
+        time_control()
+        time_show()
+        pygame.display.set_caption("Local Market » " + str(fps_out))
+        pygame.display.update()
+        # clock.tick(fps)
+
+
+
+def options_menu():
+    '''Meca Menu inventario
+    TODO
+    Crear un rectangulo HW al 75%
+    Transparentar el rectangulo
+    Dibujar barra superior con titulo
+    distinguir con otro color
+
+    Dibujar pestanias
+    Inventario personaje | opciones
+    '''
+    global click
+    click = False
+    audio_effect('menu',False, 0.1)
+    while True:
+
+        screen.fill((0, 0, 0))
+
+        draw_text('Menu Options', font, (255, 255, 255), screen, 20, 20)
+
+        mx, my = pygame.mouse.get_pos()
+        button_1 = pygame.Rect(50, 100, 190, 45)
+        button_2 = pygame.Rect(50, 150, 190, 45)
+        button_back = pygame.Rect(50, 200, 190, 45)
+
+        if button_1.collidepoint((mx, my)):
+            if click:
+                audio_effect('menu', False, 0.1)
+                options_menu()
+        if button_2.collidepoint((mx, my)):
+            if click:
+                audio_effect('menu', False, 0.1)
+                options_menu()
+        if button_back.collidepoint((mx, my)):
+            if click:
+                main_menu()
+
+        # coloreando al pasar
+        point = pygame.mouse.get_pos()
+
+        btn_draw(button_1, point, ('blueviolet'), (255, 100, 100))
+        btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
+        btn_draw(button_back, point, (100, 0, 100), (255, 100, 100))
+
+        all_sprites = pygame.sprite.Group()
+        player_one = Player()
+        all_sprites.add(player_one)
+
+        click = False
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == K_ESCAPE:
                     main_game()
@@ -420,17 +449,18 @@ def main_menu():
                     click = True
 
             # 3.- Se actualiza la pantalla
+        pygame.display.flip()
         time_control()
-        time_show()
+        # time_show()
         pygame.display.set_caption("Local Market » " + str(fps_out))
         pygame.display.update()
-<<<<<<< HEAD
-        clock.tick(fps)
-=======
         # clock.tick(fps)
->>>>>>> mk2
 
 
+
+# ############################################################################
+# Loop Principal
+# ############################################################################
 def main_game():
     '''Función principal del juego'''
 
@@ -444,11 +474,7 @@ def main_game():
 
     # Bucle principal
     while running:
-<<<<<<< HEAD
-        time_control()
-=======
         screen.fill(WHITE)
->>>>>>> mk2
         # Mostrar fondo
         screen.blit(fondo, (0, 0))
 
@@ -458,14 +484,14 @@ def main_game():
         cubo = pygame.Rect(s_width // 2, s_height // 2, 60, 60)
         pygame.draw.rect(screen, WHITE, cubo)
 
-        time_show()
         # 2.- Se comprueban los eventos
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                exit_pysys()
+                running = False
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    audio_effect('menu', False, 0.1)
                     main_menu()
                 if event.key == K_LEFT or event.key == K_a:
                     key_press["left"] = True
@@ -488,6 +514,10 @@ def main_game():
                     key_press["down"] = False
                 if event.key == K_p:
                     key_press["p_key"] = False
+
+        if running == False:
+            pygame.quit()
+            sys.exit()
 
         if key_press["left"]:  # == Si left es verdadero
             if player_x <= 0:
@@ -519,6 +549,7 @@ def main_game():
         stats()
 
         # 3.- Se actualiza la pantalla
+        pygame.display.flip()
         time_control()
         time_show()
         pygame.display.set_caption("Local Market » " + str(fps_out))
@@ -528,5 +559,8 @@ def main_game():
 
 if __name__ == '__main__':
     # Este fichero es el que ejecuta el juego principal
+    audio_effect('start', False, 0.1)
     main_menu()
+    pygame.quit()
+    sys.quit()
     # main_game()

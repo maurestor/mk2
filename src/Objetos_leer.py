@@ -16,7 +16,9 @@ class Persona():
 		self.identificacion = identificacion
 
 	def __str__(self):
-		'''Devuelte una descripcion representatica de persona'''
+		'''Devuelte una descripcion representatica de persona
+
+		'''
 		return "%s Mi nombre es %s %s soy %s, tengo %i años. \nMi identifica'\
 		'ion es: %s" % (self.__doc__[25:34], self.nombre, self.apellidos,
 				self.get_genero(self.sexo), self.edad, self.identificacion)

@@ -1,51 +1,78 @@
-import pygame as p
-import time
-import sys
+import pygame
 from pygame.locals import *
+import sys
+import os
 
-p.init()
+"""Lista de fuentes chidoris para utilizar...
 
-size = (1024, 768)
-screen = p.display.set_mode(size)
-clock = p.time.Clock()
-counter = 64
-menu = False
-
-def button(x, y, w, h, inactive, active, action=None):
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-
-    if x + w > mouse[0] > x and y + h > mouse[1] > y:
-        gameDisplay.blit(active, (x, y))
-        if click[0] == 1 and action is not None:
-            action()
-    else:
-        gameDisplay.blit(inactive, (x, y))
-
-def main():
-    run = True
-    global menu
-    while run:
-        for e in p.event.get():
-            if e.type == QUIT:
-                p.quit()
-                sys.exit()
-            elif e.type == KEYDOWN:
-                if e.key == K_ESCAPE:
-                    p.quit()
-                    sys.exit()
-                elif e.key == K_i:
-                    menu = True
-            # if menu is True and e.key == K_i:
-            #     menu = False
-            # elif event.type == KEYUP:
-            #     if e.key == K_i:
+    Comicoro
+    Nokia
+    pf tempesta seven
+    retroville
+    retrogaming
 
 
+"""
 
-        clock.tick(5)
-        p.display.update()
-        p.display.set_caption("Sistema de menus ", str(counter))
+pygame.init()
+screen = pygame.display.set_mode((640, 480))
+clock = pygame.time.Clock()
 
-if __name__ == '__main__':
-    main()
+
+font = pygame.font.Font(os.path.join('./assets/fonts/comicoro.ttf'), 32)
+# font = pygame.font.SysFont('./assets/fonts/', 12)
+# font2 = pygame.font.Font(os.path.join('/', 'otros', 'docus.ttf'), 16)
+
+
+rect = Rect(50, 40, 250, 80)
+pts = ('topleft', 'topright', 'bottomleft', 'bottomright',
+        'midtop', 'midright', 'midbottom', 'midleft', 'center')
+print(rect.center)
+
+# def show_fonts():
+#     """ Muestra una lista de las fuentes del OS """
+#     fonts = pygame.font.get_fonts()
+#     print(len(fonts))
+#     for f in fonts:
+#         print(f)
+
+
+def draw_point(text, pos):
+    img = font.render(text, True, 'black')
+    pygame.draw.circle(screen, 'red', pos, 3)
+    screen.blit(img, pos)
+
+def draw_text(text, pos):
+    tx = font.render(text, pos)
+    screen.blit(tx, pos[0]+30, pos[1])
+
+
+def main_game():
+    # show_fonts()
+    running =  True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running == False
+
+        screen.fill('gray')
+
+        # Continue...
+        pygame.draw.rect(screen, 'orange', rect, 4)
+
+        for pt in pts:
+            draw_point(pt, eval('rect.' + pt))
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ =='__main__':
+    main_game()

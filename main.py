@@ -9,7 +9,11 @@ from datetime import datetime
 from src.poswin import PosWin
 
 
-'''Caracteristicas por agregar
+"""Caracteristicas por agregar
+    
+    USA DE TODO.
+    NO CAMBIAR LO QUE YA FUNCIONA!
+    NO TE CASES CON LAS COSAS!
     
     Colisiones
         
@@ -22,8 +26,8 @@ from src.poswin import PosWin
     Sistema de efectos
         Quiza lo tenga cada objeto...
 
-    Mostrar menu del jugador
-        Menus:
+    ✔ Mostrar menu items jugador
+        » Menus: Pestanias
     
     Estadisticas del personaje
         Caracteristicas fisicas
@@ -64,7 +68,7 @@ from src.poswin import PosWin
         retroville
         retrogaming
 
-'''
+"""
 
 
 
@@ -79,18 +83,22 @@ pos_win = PosWin()
 pygame.init()
 
 W, H = (800, 600)
-screen = pygame.display.set_mode((W, H))
+# Corregir los detalles de resizable
+# Utilizar solo medidas relativas.
+screen = pygame.display.set_mode((W, H), pygame.RESIZABLE, pygame.DOUBLEBUF)
 fps = 60.0
 
 # Tiempo, horas etc.
 clock = pygame.time.Clock()
 t0 = time.time()
-tnow = 0
+tnow = [0, True]
+tfull = 720
+vday = 0.0
 
-str_t = {'hora':24, 'seg':60, 'dia':30, 'tick':3141569, 'start':'start'}
-# timer.tick()
+hora_real = 0
+
 # Fuente
-font = pygame.font.SysFont('consolas', 14, bold=True)
+font = pygame.font.SysFont('consolas', 12, bold=True)
 
 
 count = None  # Global
@@ -98,8 +106,9 @@ playtime_total = None  # Global
 player_x, player_y = (W//2, H//2)  # Posicion
 direction = 'down'
 mx, my = 0, 0
+
 # Cargar fondo
-fondo = pygame.image.load("img/backgrounds/fondo.png")
+fondo = pygame.image.load("./assets/img/fondo.png")
 # Direccion velocidad del personaje
 player_speed = 0.9
 
@@ -107,16 +116,29 @@ player_speed = 0.9
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+str_time = {'hora':60,
+            'seg':0, 
+            'dia':0, 
+            'tick':3141569,
+            'start':'start',
+            'moment_time':'?'
+            }
+
 key_press = {"left": False,
              "right": False,
              "up": False,
              "down": False,
+             "TAB_key": False,
+             'F4_key': False,
              "p_key": False,
-             "i_key": False
              }
 
+stats = {"frame_counter": 0,
+         "extras":''
+        }
+
 # player_dialoge = {wellcome: "Hello"}
-# narrator = {'Hola {}'}
+narrator = dict()
 # png_dialoge = {wellcome: 'Hello {}.'.format(name)}
 
 # translate = {
@@ -131,7 +153,7 @@ key_press = {"left": False,
 
 
 def show_fonts():
-    ''' Muestra una lista de las fuentes del OS '''
+    """ Muestra una lista de las fuentes del OS """
     fonts = pygame.font.get_fonts()
     print(len(fonts))
     for f in fonts:
@@ -147,51 +169,52 @@ def exit():
 
 
 def dialogos(logro_id):
-    '''Dibuja el dialogo a partir del logro realizado.
+    """Dibuja el dialogo a partir del logro realizado.
     Se le introduce el id de logro, o logros en cola?
     Guarda los logros en un archivo o una base de datos.
         si se grabro continua
     Devuelve el dialogo correspondiente al logro
 
-    '''
+    """
     pass
 
 
+
 def audio_effect(name, stop_time=False, vol=0.1):
-    '''Cargar efectos de audio con su nombre 
+    """Cargar efectos de audio con su nombre 
     name: menu, start, exit
     stop_time: Boulean
     vol: 0.1, 0.5, 1
-    '''
+    """
     # sound = None
     if name == 'menu':
-        pygame.mixer.music.load('./music/effect_nicholasdaryl_swing.wav')
+        pygame.mixer.music.load('./assets/music/effect_nicholasdaryl_swing.wav')
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
     
     if name == 'start':
-        pygame.mixer.music.load('./music/desktop-login.ogg')
+        pygame.mixer.music.load('./assets/music/desktop-login.ogg')
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
     
     if name == 'exit' and stop_time:
-        pygame.mixer.music.load('./music/desktop-logout.ogg')
+        pygame.mixer.music.load('./assets/music/desktop-logout.ogg')
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
         time.sleep(3000)# sound.get_length())
 
 
 class PlayerMeca():
-    '''set controls '''
+    """set controls """
 
     def __init__(self, name='', gender='', options=[], active='',
                  multi=''):
         pass
 
     def playerDraw(self, direction='down'):
-        ''' Personaje principal '''
+        """ Personaje principal """
 
-        player = pygame.image.load('img/png/playerSprite.png')
+        player = pygame.image.load('./assets/img/player.png')
 
         if direction == 'down':
             player = player.subsurface(0, 0, 32, 64)
@@ -216,10 +239,20 @@ class Player(pygame.sprite.Sprite):
 
 
 def run_time():
-    pass
+    tfull = 720 # Ciclo completo, dia entero
+    thour = tfull/24 # Una hora
+    if tnow[0] >= 0 and tnow[0] < thour*7:
+        str_time['moment_time'] = 'Es muy temprano'
+    elif tnow[0] > 7 and tnow[0] < thour*12:
+        str_time['moment_time'] = 'Es de maniana'
+    elif tnow[0] > thour*12 and tnow[0] < thour*19:
+        str_time['moment_time'] = "Es de tarde"
+    elif tnow[0] > thour*19 and tnow[0] < tfull:
+        str_time['moment_time'] = 'Es de noche'
 
-def time_control(*args):
-    '''Inicia el control de tiempo global 
+
+def time_control():
+    """Inicia el control de tiempo global 
         
         Muestra informacion del tiempo, ticks, hora especifica
 
@@ -235,32 +268,28 @@ def time_control(*args):
         El tiempo del juego hace un reinicio cada 12 minutos
         Tiene sus ciclos de dia y noche.
         0 a 180 a 360 a 540 y 720, el dia se divide de esta forma.
-    '''
-    global tnow
-    t1 = time.time()
-    if t1 - t0 <= 5 or tnow == 0:
-        tnow = t1 - t0
+    """
+    global t0, hora_real, tfull, vday
+    # Control del tiempo
+    if tnow[1] == False or tnow[0] >= tfull:
+        tnow[0], tnow[1] = 0, True
+        t0 = time.time()
+        str_time['dia'] += 1
+    elif tnow[1]:
+        tnow[0] = time.time() - t0
 
-    # if tnow >= 5: # 720000 =  12 min
-    #     tnow = 0
-
-    hour_game = tnow / 24
-    minute_game = hour_game / 60
-
+    pygame.draw.rect(screen, 'yellow', (0, 0, tnow[0], 10))
+    
+    vday = tfull / 86400
     now = datetime.now()
     hora_real = now.strftime("%I:%M:%S %p")
 
-    # if time_loop == True:
-    draw_text('Estado del tiempo: {:6.2f}'.format(tnow),
-              font, 'white', screen, 20, 80)
 
-    draw_text('Hora: {}'.format(hora_real),
-              font, 'white', screen, W/2, 34)
 
 
 def draw_text(text, font, color, surface, x, y):
     """ Dibuja texto en pantalla """
-    fw, fh = font.size(text)
+
     surface = font.render(text, True, (0, 0, 0), (255, 255, 255, 100))
     # surface.get_rect()
     # surface = surface.center
@@ -268,7 +297,7 @@ def draw_text(text, font, color, surface, x, y):
 
 
 def btn_draw(btn, point, color_active, color_hover):
-    '''Cambia color al pasar el raton sobre el elemento'''
+    """Cambia color al pasar el raton sobre el elemento"""
     collide = btn.collidepoint(point)
     color = color_hover if collide else color_active
     pygame.draw.rect(screen, color, btn)
@@ -280,23 +309,19 @@ def options():
     count += 1
 
 
-def stats():
-
-    # global playtime_total
-    # milliseconds = clock.tick(fps_out)
-    # playtime_total += milliseconds / 500.0
+def active_stats():
+    """ 
+    global playtime_total
+    milliseconds = clock.tick(fps_out)
+    playtime_total += milliseconds / 500.0
+    """
     global mx, my
     mx, my = pygame.mouse.get_pos()
-
-    draw_text("Player_loc: x({:4.3f}), y({:4.3f})".format(player_x, player_y),
-              font, WHITE, screen, 20, 40)
-
-    draw_text("Mouse: x({:4.3f}), y({:4.3f})".format(mx, my),
-              font, WHITE, screen, 20, 60)
+    
 
 
 def options_menu():
-    '''Meca Menu inventario
+    """Meca Menu inventario
     TODO
     Crear un rectangulo HW al 75%
     Transparentar el rectangulo
@@ -305,15 +330,15 @@ def options_menu():
 
     Dibujar pestanias
     Inventario personaje | opciones
-    '''
+    """
     global click
     click = False
     audio_effect('menu')
     while True:
 
-        screen.fill((0, 0, 0))
+        screen.fill(('black'))
 
-        stats()
+        active_stats()
 
         draw_text('Menu Options', font, (255, 255, 255), screen, 20, 20)
 
@@ -335,7 +360,7 @@ def options_menu():
 
         # coloreando al pasar
         point = pygame.mouse.get_pos()
-        print(point)
+        # print(point)
         btn_draw(button_1, point, ('blueviolet'), (255, 100, 100))
         btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
         btn_draw(button_back, point, (100, 0, 100), (255, 100, 100))
@@ -359,11 +384,11 @@ def options_menu():
                     click = True
 
             # 3.- Se actualiza la pantalla
-        time_control()
+        
         pygame.display.flip()
         # time_show()
         pygame.display.set_caption("Local Market » " + str(fps))
-        pygame.display.update()
+        # pygame.display.update()
 
 
 # ############################################################################
@@ -371,16 +396,16 @@ def options_menu():
 # ############################################################################
 
 def main_menu():
-    '''Meca Menu inventario
-    TODO
-    Crear un rectangulo HW al 75%
-    Transparentar el rectangulo
-    Dibujar barra superior con titulo
-    distinguir con otro color
+    """Meca Menu inventario. 
+    TODO.
+    Crear un rectangulo HW al 75%. 
+    Transparentar el rectangulo. 
+    Dibujar barra superior con titulo. 
+    distinguir con otro color.
 
-    Dibujar pestanias
-    Inventario personaje | opciones
-    '''
+    Dibujar pestanias. 
+    Inventario personaje | opciones. 
+    """
     global mx, my, tnow, click
     
     click = False
@@ -389,7 +414,7 @@ def main_menu():
         screen.fill('lightgray')
 
         # Estadisticas de casi todo...
-        stats()
+        active_stats()
 
         # ####################################################################
         # Range colitions
@@ -401,7 +426,7 @@ def main_menu():
 
         # ####################################################################
 
-        draw_text('Menu Mercadito', font, (255, 255, 255), screen, 20, 20)
+        draw_text('Menu MK2', font, (255, 255, 255), screen, 20, 20)
 
         button_1 = pygame.Rect(50, 100, 190, 45)
         button_2 = pygame.Rect(50, 150, 190, 45)
@@ -445,10 +470,10 @@ def main_menu():
         click = False
 
         # 3.- Se actualiza la pantalla
-        time_control()
+        
         pygame.display.flip()
-        pygame.display.set_caption("Local Market » " + str(tnow))
-        pygame.display.update()
+        pygame.display.set_caption("Local Market » " + str(tnow[0]))
+        # pygame.display.update()
         clock.tick(fps)
 
 
@@ -457,33 +482,40 @@ def main_menu():
 # ############################################################################
 
 def main_game():
-    '''Función principal del juego'''
+    """Función principal del juego"""
 
     # Guardar posicion
-    global player_x, player_y, direction, player_speed, tnow, mx, my
+    global player_x, player_y, direction, player_speed, tnow, mx, my, t0, str_time, stats
 
-    t1 = time.time()
     jugador = PlayerMeca()
 
     running = True  # Activador del menu
-
+    der = 0 # Restableciendo el movimiento.
     # Bucle principal
     while running:
-        # screen.fill(WHITE)
+        screen.fill('black')
         # Mostrar fondo
-        screen.blit(fondo, (0, 0))
-
+        stats['frame_counter'] += 1
+        der += 0.05
+        screen.blit(fondo, (der, 0))
 
         # Estadisticas
-        stats()
-
+        active_stats()
 
         # Se dibuja el personaje
         screen.blit(jugador.playerDraw(direction), (player_x, player_y))
 
-        menu_player = pygame.Surface((W//5, H//5))
+
+        # menu_player = Menu Item Player
+        # 
+        w_menu_player = int((W/100)*80)
+        h_menu_player = int((H/100)*80)
+
+        menu_player = pygame.Surface((w_menu_player, h_menu_player))
+        # menu_player_h_center, menu_player_w_center = menu_player.get_height()/2, menu_player.get_width()/2
         menu_player.get_rect()
-        menu_player.set_alpha(128)
+        # menu_player.center
+        menu_player.set_alpha(200)
         menu_player.fill('white')
 
         # 2.- Se comprueban los eventos
@@ -504,18 +536,32 @@ def main_game():
                     key_press["up"] = True
                 if event.key == K_DOWN or event.key == K_s:
                     key_press["down"] = True
-                if event.key == K_p:  # Comandos FPS
-                    key_press["p_key"] = True
+                # if event.key == K_p:  # Comandos FPS
+                #     key_press["p_key"] = True
 
-                if event.key == K_r:  # Reset Time
-                    key_press["r_key"] = True
+                # resetear el tiempo
+                if event.key == K_F5:  # Reset Time
+                    key_press["F5_key"] = True
+                    tnow[1] = False
 
-                if event.key == K_i and key_press["i_key"] == False:
-                    key_press["i_key"] = True
-                elif event.key == K_i and key_press["i_key"]:
-                    key_press["i_key"] = False
+                # Abrir el menu )transparente=
+                if event.key == K_TAB and key_press["TAB_key"] == False:
+                    key_press["TAB_key"] = True
+                elif event.key == K_TAB and key_press["TAB_key"]:
+                    key_press["TAB_key"] = False
 
+                # Abctivar-Descartivar estadisticas
+                if event.key == K_F4 and key_press["F4_key"] == False:
+                    key_press["F4_key"] = True
+                elif event.key == K_F4 and key_press["F4_key"]:
+                    key_press["F4_key"] = False
 
+                # if event.key == K_p and key_press["p_key"] == False:
+                #     key_press["p_key"] = True
+                # elif event.key == K_p and key_press["p_key"]:
+                #     key_press["p_key"] = False
+                
+                
 
             elif event.type == KEYUP:
                 if event.key == K_LEFT or event.key == K_a:
@@ -526,10 +572,27 @@ def main_game():
                     key_press["up"] = False
                 if event.key == K_DOWN or event.key == K_s:
                     key_press["down"] = False
-                if event.key == K_p:
-                    key_press["p_key"] = False
+                # if event.key == K_p:
+                #     key_press["p_key"] = False
             # elif running == False:
             #     exit()
+
+        # Movimiento de rebote
+        # if key_press['p_key']:
+        #         player_x -= player_speed
+        #         if player_x <= 0:
+        #             player_x += player_speed
+        # if key_press['p_key']:
+        #     if player_x + 32 <= W:
+        #         player_x -= player_speed
+        # if key_press['p_key']:
+        #     if player_y >= 0:
+        #         player_y -= player_speed
+        # if  key_press['p_key']:
+        #     if player_y +256 <= W:
+        #         player_y += player_speed
+
+        print(stats)
 
         if key_press["left"]:  # == Si left es verdadero
             if player_x <= 0:
@@ -550,24 +613,47 @@ def main_game():
                 direction = 'up'
                 player_y -= player_speed
         if key_press["down"]:
-            if player_y + 256 >= W:
+            if player_y + 96 >= W:
                 # Arregla la medida del sprite a 64
                 direction = 'down'
             else:
                 direction = 'down'
                 player_y += player_speed
 
-        # Abrir menu del jugador
-        if key_press["i_key"]:
-            screen.blit(menu_player, (H/2, W/2))
+        # Abrir menu items
+        if key_press["TAB_key"]:
+            # Dibujar el menu en medio
+            screen.blit(menu_player, (((W//2)-w_menu_player/2), ((H//2)-h_menu_player/2)))
+
+
+        if key_press["F4_key"]:
+            run_time()
+
+            # Muestra la ubicacion del juagor
+            draw_text("Player_loc: x({:4.3f}), y({:4.3f})".format(player_x,
+                       player_y), font, WHITE, screen, 20, 40)
+            # Muestra el mouse
+            draw_text("Mouse: x({:4.3f}), y({:4.3f})".format(mx, my),
+                       font, WHITE, screen, 20, 60)
+
+            draw_text('{} dias {:6.2f}'.format(str_time['dia'], tnow[0]), font, 'white', screen, 20, 80)
+            # Muestra la hora real.
+            draw_text('Hora: {}'.format(hora_real),
+                       font, 'white', screen, 50+(W/2), 34)
+            # Muestra el momento del dia 
+            draw_text('{}'.format(str_time['moment_time']),
+                       font, 'white', screen, 50+(W/2), 55)
+
+            draw_text('{}'.format(vday),
+                       font, 'white', screen, 50+(W/2), 75)
 
 
 
-        # 3.- Se actualiza la pantalla
         time_control()
+        # 3.- Se actualiza la pantalla
         pygame.display.flip()
-        pygame.display.set_caption("Local Market » " + str(tnow))
-        pygame.display.update()
+        pygame.display.set_caption("Local Market » {:3.2f}".format(tnow[0]))
+        # pygame.display.update()
 
 if __name__ == '__main__':
     audio_effect('start')

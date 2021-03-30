@@ -26,6 +26,5 @@ class PosWin:
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (self.rx, self.ry)
 
 
-
 if __name__ == '__main__':
     PosWin()

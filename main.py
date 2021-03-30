@@ -104,11 +104,13 @@ font = pygame.font.SysFont('consolas', 12, bold=True)
 count = None  # Global
 playtime_total = None  # Global
 player_x, player_y = (W//2, H//2)  # Posicion
-direction = 'down'
+direct = 'down'
 mx, my = 0, 0
 
 # Cargar fondo
 fondo = pygame.image.load("./assets/img/fondo.png")
+# Carga textura del personaje
+
 # Direccion velocidad del personaje
 player_speed = 0.9
 
@@ -146,6 +148,44 @@ narrator = dict()
 #     rus: {},
 #     jap: {}
 # }
+
+
+# ############################################################################
+# Sprites
+# ############################################################################
+
+
+class Gamer(pygame.sprite.Sprite):
+    """Crea al personaje con sus caracteristicas"""
+    def __init__(self, name='', gender='', options=[], active='', multi=''):
+        pygame.sprite.Sprite.__init__(self)
+        # self.direct = 'down'
+
+    def direct(self, direct='down'):
+        """Direccion del personaje principal """
+        
+        player = pygame.image.load('./assets/img/player.png')
+        
+        if direct == 'down':
+            player = player.subsurface(0, 0, 32, 64)
+        elif direct == 'right':
+            player = player.subsurface(32, 0, 32, 64)
+        elif direct == 'up':
+            player = player.subsurface(64, 0, 32, 64)
+        elif direct == 'left':
+            player = player.subsurface(96, 0, 32, 64)
+        
+        
+        return player
+
+class Store(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+        store = Rect(0, 0, 100, 100)
+
+
+
 
 # ############################################################################
 # Funciones de debugeo
@@ -204,40 +244,6 @@ def audio_effect(name, stop_time=False, vol=0.1):
         time.sleep(3000)# sound.get_length())
 
 
-class PlayerMeca():
-    """set controls """
-
-    def __init__(self, name='', gender='', options=[], active='',
-                 multi=''):
-        pass
-
-    def playerDraw(self, direction='down'):
-        """ Personaje principal """
-
-        player = pygame.image.load('./assets/img/player.png')
-
-        if direction == 'down':
-            player = player.subsurface(0, 0, 32, 64)
-        elif direction == 'right':
-            player = player.subsurface(32, 0, 32, 64)
-        elif direction == 'up':
-            player = player.subsurface(64, 0, 32, 64)
-        elif direction == 'left':
-            player = player.subsurface(96, 0, 32, 64)
-        return player
-
-
-class Player(pygame.sprite.Sprite):
-    """Agregar personajes, jugadores etc..."""
-    def __init__(self):
-        super().__init__()
-        # self.image = pygame.image.load("./img/spritegral.png")
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((255, 255, 255))
-        self.rect = self.image.get_rect()
-        self.rect.center = (W / 2, H / 2)
-
-
 def run_time():
     tfull = 720 # Ciclo completo, dia entero
     thour = tfull/24 # Una hora
@@ -285,8 +291,6 @@ def time_control():
     hora_real = now.strftime("%I:%M:%S %p")
 
 
-
-
 def draw_text(text, font, color, surface, x, y):
     """ Dibuja texto en pantalla """
 
@@ -317,7 +321,6 @@ def active_stats():
     """
     global mx, my
     mx, my = pygame.mouse.get_pos()
-    
 
 
 def options_menu():
@@ -389,7 +392,6 @@ def options_menu():
         # time_show()
         pygame.display.set_caption("Local Market » " + str(fps))
         # pygame.display.update()
-
 
 # ############################################################################
 # Inicio del juego
@@ -463,14 +465,9 @@ def main_menu():
         btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
         btn_draw(button_exit, point, (100, 0, 100), (255, 100, 100))
 
-        all_sprites = pygame.sprite.Group()
-        player_one = Player()
-        all_sprites.add(player_one)
-
         click = False
 
         # 3.- Se actualiza la pantalla
-        
         pygame.display.flip()
         pygame.display.set_caption("Local Market » " + str(tnow[0]))
         # pygame.display.update()
@@ -485,9 +482,9 @@ def main_game():
     """Función principal del juego"""
 
     # Guardar posicion
-    global player_x, player_y, direction, player_speed, tnow, mx, my, t0, str_time, stats
+    global player_x, player_y, direct, player_speed, tnow, mx, my, t0, str_time, stats
 
-    jugador = PlayerMeca()
+    player = Gamer()
 
     running = True  # Activador del menu
     der = 0 # Restableciendo el movimiento.
@@ -503,7 +500,7 @@ def main_game():
         active_stats()
 
         # Se dibuja el personaje
-        screen.blit(jugador.playerDraw(direction), (player_x, player_y))
+        screen.blit(player.direct(direct), (player_x, player_y))
 
 
         # menu_player = Menu Item Player
@@ -596,28 +593,28 @@ def main_game():
 
         if key_press["left"]:  # == Si left es verdadero
             if player_x <= 0:
-                direction = 'left'
+                direct = 'left'
             else:
-                direction = 'left'
+                direct = 'left'
                 player_x -= player_speed
         if key_press["right"]:
             if player_x + 32 >= W:
-                direction = 'right'
+                direct = 'right'
             else:
-                direction = 'right'
+                direct = 'right'
                 player_x += player_speed
         if key_press["up"]:
             if player_y <= 0:
-                direction = 'up'
+                direct = 'up'
             else:
-                direction = 'up'
+                direct = 'up'
                 player_y -= player_speed
         if key_press["down"]:
-            if player_y + 96 >= W:
+            if player_y + 256 >= W:
                 # Arregla la medida del sprite a 64
-                direction = 'down'
+                direct = 'down'
             else:
-                direction = 'down'
+                direct = 'down'
                 player_y += player_speed
 
         # Abrir menu items

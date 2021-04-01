@@ -174,26 +174,28 @@ narrator = dict()
 
 class Gamer(pygame.sprite.Sprite):
     """Crea al personaje con sus caracteristicas"""
-    def __init__(self, name='', gender='', options=[], active='', multi=''):
+    
+    def __init__(self, img='img/player.old.png'):
         pygame.sprite.Sprite.__init__(self)
-        # self.direct = 'down'
+        self.img_player = pygame.image.load(asset(img))
+        self.r_player = self.img_player.get_rect()
 
-    def direct(self, direct='down'):
+
+    def render(self, direct='down'):
         """Direccion del personaje principal """
-        
-        player = pygame.image.load(asset('img/player.png'))
-        
+
         if direct == 'down':
-            player = player.subsurface(0, 0, 32, 64)
+            self.d = self.img_player.subsurface(0, 0, 32, 64)
         elif direct == 'right':
-            player = player.subsurface(32, 0, 32, 64)
+            self.d = self.img_player.subsurface(32, 0, 32, 64)
         elif direct == 'up':
-            player = player.subsurface(64, 0, 32, 64)
+            self.d = self.img_player.subsurface(64, 0, 32, 64)
         elif direct == 'left':
-            player = player.subsurface(96, 0, 32, 64)
+            self.d = self.img_player.subsurface(96, 0, 32, 64)
         
-        
-        return player
+        # return self.d
+        screen.blit(self.img_player, (player_x, player_y))
+
 
 class Store(pygame.sprite.Sprite):
     def __init__(self):
@@ -505,8 +507,8 @@ def main_game():
     # Guardar posicion
     global player_x, player_y, direct, player_speed, tnow, mx, my, t0, str_time, stats
 
-    player = Gamer()
-
+    player = Gamer(img='img/player.png')
+    moving = False
     running = True  # Activador del menu
     der = 0 # Restableciendo el movimiento.
     # Bucle principal
@@ -521,13 +523,15 @@ def main_game():
         active_stats()
 
         # Se dibuja el personaje
-        screen.blit(player.direct(direct), (player_x, player_y))
+        screen.blit(player.directi(direct), player.r_player)
+        screen.blit(player.directi(direct), (player_x, player_y))
 
 
         # menu_player = Menu Item Player
         # 
         w_menu_player = int((W/100)*80)
         h_menu_player = int((H/100)*80)
+        
 
         menu_player = pygame.Surface((w_menu_player, h_menu_player))
         # menu_player_h_center, menu_player_w_center = menu_player.get_height()/2, menu_player.get_width()/2
@@ -578,7 +582,15 @@ def main_game():
                 #     key_press["p_key"] = True
                 # elif event.key == K_p and key_press["p_key"]:
                 #     key_press["p_key"] = False
-                
+            
+            elif event.type == MOUSEBUTTONDOWN:
+                if player.r_player.collidepoint(event.pos):
+                    moving = True
+                    print('player')
+            elif event.type == MOUSEBUTTONUP:
+                moving = False
+            elif event.type == MOUSEMOTION and moving:
+                player.r_player.move_ip(event.rel)
                 
 
             elif event.type == KEYUP:
@@ -610,7 +622,7 @@ def main_game():
         #     if player_y +256 <= W:
         #         player_y += player_speed
 
-        print(stats)
+        # print(stats)
 
         if key_press["left"]:  # == Si left es verdadero
             if player_x <= 0:

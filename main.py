@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys
-import time
-import pygame
+
+import pygame, os, sys, time
 from pygame.locals import *
 from datetime import datetime
 from src.poswin import PosWin
@@ -14,6 +13,8 @@ from src.poswin import PosWin
     USA DE TODO.
     NO CAMBIAR LO QUE YA FUNCIONA!
     NO TE CASES CON LAS COSAS!
+    
+    # Ten cuidado de usar la linea 1 incorrectamente, en linux causa conflicto el interprete
     
     Colisiones
         
@@ -77,6 +78,19 @@ from src.poswin import PosWin
 # ############################################################################
 # pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
 
+def asset(dir_asset='img/player.old.png'):
+    """Busca la ruta absoluta de la carpeta \'assets\' en el OS actual
+    
+    `Params`:
+    dir_asset: str
+
+    Sin parametros se devuelve la imagen de un personaje del juego.
+    """
+
+    path_asset = os.path.join(source_dir_file, 'assets/', dir_asset)
+    return path_asset
+
+
 pos_win = PosWin()
 
 # Iniciando pygame...
@@ -107,8 +121,11 @@ player_x, player_y = (W//2, H//2)  # Posicion
 direct = 'down'
 mx, my = 0, 0
 
+# Carga de archivos, buscar asset()
+source_dir_file = os.path.dirname(os.path.abspath(__file__))
+
 # Cargar fondo
-fondo = pygame.image.load("./assets/img/fondo.png")
+fondo = pygame.image.load(asset('img/fondo.png'))
 # Carga textura del personaje
 
 # Direccion velocidad del personaje
@@ -136,7 +153,7 @@ key_press = {"left": False,
              }
 
 stats = {"frame_counter": 0,
-         "extras":''
+         "extras":'',
         }
 
 # player_dialoge = {wellcome: "Hello"}
@@ -164,7 +181,7 @@ class Gamer(pygame.sprite.Sprite):
     def direct(self, direct='down'):
         """Direccion del personaje principal """
         
-        player = pygame.image.load('./assets/img/player.png')
+        player = pygame.image.load(asset('img/player.png'))
         
         if direct == 'down':
             player = player.subsurface(0, 0, 32, 64)
@@ -203,6 +220,8 @@ def show_fonts():
 # ############################################################################
 # Cargando funciones y metodos
 # ############################################################################
+
+
 def exit():
     pygame.quit()
     sys.exit()
@@ -228,17 +247,19 @@ def audio_effect(name, stop_time=False, vol=0.1):
     """
     # sound = None
     if name == 'menu':
-        pygame.mixer.music.load('./assets/music/effect_nicholasdaryl_swing.wav')
+        # pygame.mixer.music.load('./assets/music/effect_nicholasdaryl_swing.wav')
+        pygame.mixer.music.load(asset('music/effect_nicholasdaryl_swing.wav'))
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
     
     if name == 'start':
-        pygame.mixer.music.load('./assets/music/desktop-login.ogg')
+        # pygame.mixer.music.load('./assets/music/desktop-login.ogg')
+        pygame.mixer.music.load(asset('music/desktop-login.ogg'))
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
     
     if name == 'exit' and stop_time:
-        pygame.mixer.music.load('./assets/music/desktop-logout.ogg')
+        pygame.mixer.music.load(asset('music/desktop-logout.ogg'))
         pygame.mixer.music.set_volume(vol)
         sound = pygame.mixer.music.play()
         time.sleep(3000)# sound.get_length())
@@ -368,9 +389,9 @@ def options_menu():
         btn_draw(button_2, point, (100, 100, 100), (255, 100, 100))
         btn_draw(button_back, point, (100, 0, 100), (255, 100, 100))
 
-        all_sprites = pygame.sprite.Group()
-        player_one = Player()
-        all_sprites.add(player_one)
+        # all_sprites = pygame.sprite.Group()
+        # player_one = Player()
+        # all_sprites.add(player_one)
 
         click = False
 

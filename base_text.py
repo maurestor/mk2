@@ -19,7 +19,7 @@ font1 = pygame.font.SysFont('lemon', 50)
 img1 = font1.render('lemon.ttf', True, 'orangered')
 
 font2 = pygame.font.SysFont('russoone', 50)
-img2 = font2.render('russoone.ttf', True, 'yellow')
+img2 = font2.render('russoone.ttf', True, 'pink')
 
 fonts = pygame.font.get_fonts()
 for f in fonts:
@@ -37,7 +37,7 @@ while run:
                 run = 0
     screen.fill('gray70')
 
-    print(f"Tiempo desde que se creo el texto: {time.time()-t0:.2f}")
+    # print(f"Tiempo desde que se creo el texto: {time.time()-t0:.2f}")
     # pygame.draw.rect()
 
     screen.blit(img, (20, 20))

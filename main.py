@@ -179,9 +179,10 @@ class Gamer(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.img_player = pygame.image.load(asset(img))
         self.r_player = self.img_player.get_rect()
+        
 
 
-    def render(self, direct='down'):
+    def pos(self, direct='down'):
         """Direccion del personaje principal """
 
         if direct == 'down':
@@ -193,8 +194,7 @@ class Gamer(pygame.sprite.Sprite):
         elif direct == 'left':
             self.d = self.img_player.subsurface(96, 0, 32, 64)
         
-        # return self.d
-        screen.blit(self.img_player, (player_x, player_y))
+        return self.d
 
 
 class Store(pygame.sprite.Sprite):
@@ -523,8 +523,8 @@ def main_game():
         active_stats()
 
         # Se dibuja el personaje
-        screen.blit(player.directi(direct), player.r_player)
-        screen.blit(player.directi(direct), (player_x, player_y))
+        screen.blit(player.pos(direct), player.r_player)
+        screen.blit(player.pos(direct), (player_x, player_y))
 
 
         # menu_player = Menu Item Player
@@ -544,7 +544,7 @@ def main_game():
         for event in pygame.event.get():
             if event.type == QUIT:
                 quit()
-            elif event.type == KEYDOWN:
+            if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     audio_effect('menu')
                     main_menu()
@@ -583,16 +583,6 @@ def main_game():
                 # elif event.key == K_p and key_press["p_key"]:
                 #     key_press["p_key"] = False
             
-            elif event.type == MOUSEBUTTONDOWN:
-                if player.r_player.collidepoint(event.pos):
-                    moving = True
-                    print('player')
-            elif event.type == MOUSEBUTTONUP:
-                moving = False
-            elif event.type == MOUSEMOTION and moving:
-                player.r_player.move_ip(event.rel)
-                
-
             elif event.type == KEYUP:
                 if event.key == K_LEFT or event.key == K_a:
                     key_press["left"] = False
@@ -606,6 +596,17 @@ def main_game():
                 #     key_press["p_key"] = False
             # elif running == False:
             #     exit()
+            
+            elif event.type == MOUSEBUTTONDOWN:
+                if player.r_player.collidepoint(event.pos):
+                    moving = True
+                    print('player')
+            elif event.type == MOUSEBUTTONUP:
+                moving = False
+            elif event.type == MOUSEMOTION and moving:
+                player.r_player.move_ip(event.rel)
+                
+
 
         # Movimiento de rebote
         # if key_press['p_key']:

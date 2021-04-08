@@ -25,7 +25,7 @@ class Persona():
 
 	def hablar(self, mensaje):
 		''' La persona devuelve un mesaje y lo escribe en la consola. '''
-		return mensaje
+		print(mensaje)
 
 	def get_genero(self, sexo):
 		''' Mostrar el genero de Persona '''
@@ -35,7 +35,7 @@ class Persona():
 		elif self.sexo.lower() == 'f':
 			return sexo[1]
 		else:
-			'Desconocido'
+			return('sexo desconocido')
 
 	def get(self):
 		''' Toma algunas caracteristicas para agregar a persona '''
@@ -57,20 +57,21 @@ class Trabajador(Persona):
 				 ocupacion, nivel_academico, nombre_carrera, salario, 
 				 nombre_empresa):
 
-		Persona.__init__(self, nombre, apellidos, sexo, edad, identificacion)
+		Persona.__init__(self, nombre, apellidos, sexo, edad, identificacion, )
 
 		self.ocupacion = ocupacion
 		self.nivel_academico = nivel_academico
 		self.nombre_carrera = nombre_carrera
 		self.salario = salario
+		self.sexo = sexo
 		self.metas_de_trabajo = ['nuevo', 'junior', 'academia', 'contratado']
 		self.nombre_empresa = nombre_empresa
 
 	def __str__(self):
 		''' Por ahora no se muestra nada del Trabajador '''
 		return '%s %s esta trabajando en %s, su salario es $%i por sus entudi'\
-		'os en %s.' % (self.nombre, self.apellidos, self.nombre_empresa,
-					self.salario, self.nivel_academico)
+		'os en %s. %s' % (self.nombre, self.apellidos, self.nombre_empresa,
+					self.salario, self.nivel_academico, self.get_genero(self.sexo))
 
 	def consulta_tareas(self):
 		''' Muestra las tareas que el trabajador ya cumplio '''
@@ -100,10 +101,10 @@ class Clase():
 
 # clase = Clase()
 
-mau_trabaja = Trabajador("Mauricio", 'Torres Garcia', 'H', 35,
+mau = Trabajador("Mauricio", 'Torres Garcia', 'l', 35,
 			"TOGM850328HDFRRR04", 'Programador', 'Universidad',
 			"Ciencias de la computacion", 35000, 'Mecaro')
+print(mau)
+mau.hablar('Que onda!!!')
 
 
-
-print ("Hola")

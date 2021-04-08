@@ -13,12 +13,12 @@ class PosWin:
     Arriba hacia abajo en el eje Y.
 
     '''
-    def __init__(self, x=0, y=30):
-        if x == 0 and y == 30:
+    def __init__(self, x=30, y=30):
+        if x == 30 and y == 30:
             self.x = x
             self.y = y
         else:
-            self.x = random.randint(0, x)
+            self.x = random.randint(30, x)
             self.y = random.randint(30, y)
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (self.x, self.y)

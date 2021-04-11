@@ -159,8 +159,8 @@ def main():
 
     # Prepare Game Objects
     clock = pg.time.Clock()
-    whiff_sound = load_sound("whiff.wav")
-    punch_sound = load_sound("punch.wav")
+    # whiff_sound = load_sound("whiff.wav")
+    # punch_sound = load_sound("punch.wav")
     chimp = Chimp()
     fist = Fist()
     allsprites = pg.sprite.RenderPlain((fist, chimp))

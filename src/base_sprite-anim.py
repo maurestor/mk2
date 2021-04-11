@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding:utf-8 -*-
 
 import pygame
@@ -7,11 +6,11 @@ import os
 import sys
 import time
 from pygame.locals import *
-from src.poswin import PosWin
+from pygamextras import poswin
 
 
 pygame.init()
-pos = PosWin()
+poswin(200, 200)
 W, H = 600, 400
 screen = pygame.display.set_mode((W, H))
 run = True
@@ -49,7 +48,7 @@ def draw_text(text="sample", color='black', v2i=(10, 10), bg=None):
 
 
 class Gamer(pygame.sprite.Sprite):
-    def __init__(self, image='img/player-anim.png', location=[W//2, H//2], speed=3):
+    def __init__(self, image='player-anim.png', location=[W//2, H//2], speed=3):
         pygame.sprite.Sprite.__init__(self)
         self.vars = {'left': False, 'right': False, 'up': False, 'down': False,
                      'last_dir':'down'}
@@ -131,7 +130,7 @@ class Gamer(pygame.sprite.Sprite):
             self.select_sub_sprite(4, 6)
 
         if self.vars['right']:
-            if not self.rect.x + self.rect.width > W-(W//12):
+            if not self.rect.x + self.rect.width > W-(W//10):
                 self.vars['last_dir'] = 'right'
                 self.control(y=0, x=self.speed)
                 self.select_sub_sprite(2,4)
@@ -142,7 +141,7 @@ class Gamer(pygame.sprite.Sprite):
             self.select_sub_sprite(0,2)
 
         if self.vars['up']:
-            if not self.rect.y < 0+(H//10):
+            if not self.rect.y < 0+(H//8):
                 self.vars['last_dir'] = 'up'
                 self.control(y=-self.speed, x=0)
                 self.select_sub_sprite(10,12)
@@ -153,7 +152,7 @@ class Gamer(pygame.sprite.Sprite):
             self.select_sub_sprite(8,10)
 
         if self.vars['left']:
-            if not self.rect.x < 0+(W//12):
+            if not self.rect.x < 0+(W//10):
                 self.vars['last_dir'] = 'left'
                 self.control(y=0, x=-self.speed)
                 self.select_sub_sprite(14,16)

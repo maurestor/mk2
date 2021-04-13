@@ -25,6 +25,9 @@ class Player(pygame.sprite.Sprite):
     sprites.append(pygame.transform.flip(sprites[1], True, False))# Stay_L1
     sprites.append(pygame.transform.flip(sprites[2], True, False))# Walk_L0
     sprites.append(pygame.transform.flip(sprites[3], True, False))# Walk_L1
+
+    gui_answer = []
+    
     
     def __init__(self, location=[W//2, H//2], speed=3, W=W, H=H):
         pygame.sprite.Sprite.__init__(self)
@@ -34,14 +37,17 @@ class Player(pygame.sprite.Sprite):
 
        
         self.rect = Rect(location[0], location[1], 32, 64) # self.image.get_rect()
+        
+        #Creando la gui
         self.collide_rect = Rect(location[0], location[1], 32, 32)
-        self.collide_rect.midbottom = self.rect.midbottom
+        self.collide_rect.bottomleft = self.rect.topright
 
         self.speed = speed
         self.current_sprite = 1 #constante de velocidad = 1000
         self.aleatorio = randrange(1, 900)
 
         self.frame = 0
+        self.bg = [0, 0]
 
         self.vars = {'left': False, 'right': False, 'up': False, 'down': False, 'last_dir':'down', 'debug':False, 'location':[self.rect.x, self.rect.y]}
 
@@ -93,16 +99,36 @@ class Player(pygame.sprite.Sprite):
                 self.vars['right'] = False
 
 
-    def update(self):
+    def player_up(self):
+        self.vars['last_dir'] = 'up'
+
+    def player_down(self):
+        self.vars['last_dir'] = 'down'
+
+    def player_left(self):
+        self.vars['last_dir'] = 'left'
+
+    def player_right(self):
+        self.vars['last_dir'] = 'right'
+
+
+
+    def update(self, surface):
+
+        # Gui draw
+        pygame.draw.rect(surface, 'gold', (self.rect.x, self.rect.y-16, 32, 32), 1)
 
         if self.vars['down']:
             if not self.rect.y + self.rect.height > self.H-(self.H//10):
-                self.vars['last_dir'] = 'down'
+                self.player_down()
                 self.control(y=self.speed, x=0)
                 self.select_sub_sprite(6, 8)
             else:
                 self.select_sub_sprite(6, 8)
-                self.vars['last_dir'] = 'down'
+                self.player_down()
+                # Movement background trought player
+                self.bg[1] -= self.speed
+
         elif self.vars['last_dir'] == 'down':
             self.select_sub_sprite(4, 6)
 
@@ -114,6 +140,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.select_sub_sprite(2,4)
                 self.vars['last_dir'] = 'right'
+                # Movement background trought player
+                self.bg[0] -= self.speed
         elif self.vars['last_dir'] == 'right':
             self.select_sub_sprite(0,2)
 
@@ -125,6 +153,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.select_sub_sprite(10,12)
                 self.vars['last_dir'] = 'up'
+                #Moviendo el fondo
+                self.bg[1] += self.speed
         elif self.vars['last_dir'] == 'up':
             self.select_sub_sprite(8,10)
 
@@ -136,9 +166,16 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.select_sub_sprite(14,16)
                 self.vars['last_dir'] = 'left'
+                # Movement background trought player
+                self.bg[0] += self.speed
         elif self.vars['last_dir'] == 'left':
             self.select_sub_sprite(12,14)
 
+
+        # if pygame.sprite.groupcollide(player_group, store_group, False, False):
+        #     debug(self.rect)
+        # else:
+        #     audio_effect('menu')
 
 
         self.rect.x = self.movex
@@ -146,13 +183,29 @@ class Player(pygame.sprite.Sprite):
         self.vars['location'][0] = self.rect.x
         self.vars['location'][1] = self.rect.y
 
+        
+
         # Constante de velocidad...
         self.current_sprite += self.aleatorio/10000  # aumente # de frames entre cada FPS
 
         if self.current_sprite > len(self.sprites):
             self.current_sprite = 0
 
+        
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
         
         # self.surface.blit(self.debug(), self.location)
+
+    def gui_render(self, simbol, vector, lifetime):
+        """Muestra el simbolo de la interfaz correspondiente
+        
+        Ejemplos:
+        Pregunta ?
+        Admiracion !
+
+        """
+        self.simbol = simbol
+        self.vector = vector
+        self.lifetime = lifetime
+                #Si hay colision con el grupo tienda
 

@@ -1,5 +1,7 @@
 import pygame
 import math
+from pygamextras import poswin, asset
+
 
 def draw_health_bar(surf, pos, size, borderC, backC, healthC, progress):
     pygame.draw.rect(surf, backC, (*pos, *size))
@@ -11,7 +13,7 @@ def draw_health_bar(surf, pos, size, borderC, backC, healthC, progress):
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.original_image = pygame.image.load('../img/png/player.png')
+        self.original_image = pygame.image.load('/home/restor/Documents/game-develop/mk2/src/player-anim.png')
         self.original_image = pygame.transform.rotate(self.original_image, 90)
         self.image = self.original_image
         self.rect = self.image.get_rect(center=(x, y))

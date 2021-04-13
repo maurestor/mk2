@@ -7,13 +7,13 @@ class Store(pygame.sprite.Sprite):
 
     def __init__(self, location=[], pid=1, multi=False):
         pygame.sprite.Sprite.__init__(self)
-        if multi:
-            self.rect = Rect(location[0]-128, location[1]-128, 128, 128)
+        if location == 'middle':
+            location = (W//2,H//2)
+            self.rect = Rect(location[0], location[1], 128, 128)
         else:
-            if location == 'middle':
-                location = (W//2,H//2)
-                self.rect = Rect(location[0], location[1], 128, 128)
-    
+            self.rect = Rect(location[0], location[1], 128, 128)
+
+
         self.movex = location[0]
         self.movey = location[1]
 
@@ -48,6 +48,11 @@ class Store(pygame.sprite.Sprite):
         self.rect.y = self.movey
         self.vars['location'][0] = self.rect.x
         self.vars['location'][1] = self.rect.y
+
+        # if pygame.sprite.groupcollide(player_group, store_group, False, False):
+        #     debug(self.rect)
+        # else:
+        #     audio_effect('menu')
 
         self.current_sprite += 0.005  # aumente # de frames entre cada FPS
         if self.current_sprite > len(self.sprites):

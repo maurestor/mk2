@@ -2,13 +2,12 @@ import pygame
 from pygame.locals import *
 import sys
 import time
-from poswin import PosWin
+from pygamextras import poswin
 
 
 pygame.init()
 W, H = 600, 400
-pos = PosWin()
-pos.pos_rand(W, H)
+poswin(100,100)
 screen = pygame.display.set_mode((W, H))
 font = pygame.font.SysFont('comicoro', 16)
 # reloj pygame

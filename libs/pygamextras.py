@@ -7,6 +7,7 @@ from pygame.locals import *
 import os, random, sys, math
 
 W, H = 800, 600
+screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
 
 
 def asset(folder_asset=None, file_asset='file.old.png'):
@@ -26,7 +27,28 @@ def asset(folder_asset=None, file_asset='file.old.png'):
     else:
         path_asset = os.path.join(source_dir_file, folder_asset+'/', file_asset)
     # print(path_asset)
+    
     return path_asset
+
+# def asset_new(folder_asset=None, file_asset='file.old.png'):
+#     """Busca la ruta absoluta de la carpeta \'assets\' en el OS actual
+
+#     `Params`:
+#     folder_asset: str
+#     file_asset: str
+
+#     Devuelve la imagen/audio/sprite/video/midi del juego.
+#     """
+#     source_dir_file = os.path.dirname(os.path.dirname(__file__))
+#     # print(source_dir_file)
+#     if folder_asset == None:
+#     # Carga de archivos, buscar asset()
+#         path_asset = os.path.join(source_dir_file, '/', file_asset)
+#     else:
+#         path_asset = os.path.join(source_dir_file, folder_asset+'/', file_asset)
+#     # print(path_asset)
+    
+#     return pygame.image.load(asset(folder_asset, file_asset))
 
 
 def poswin(horizontal=50, vertical=50):
@@ -55,18 +77,18 @@ def fontxtra(font_name:str, size:int):
     return font
 
 def textrabr(tl, tr, bl, br):
-    b = []
-    b.append(tl)
-    b.append(tr)
-    b.append(bl)
-    b.append(br) 
-    return b
+    border = []
+    border.append(tl)
+    border.append(tr)
+    border.append(bl)
+    border.append(br) 
+    return border
 
-def textra(screen, text='text here...', pos=[0, 0], color='gold', brcolor=None, twidth=0, bgcoltext=None, bgcolor=None, tl=0, tr=0, bl=0, br=0 ):
+def textra(screen, text='text here...', pos=[0, 0], color='gold', brcolor=None, twidth=0, bgcoltext=None, bgcolor=None, tl=0, tr=0, bl=0, br=0):
     """Renderiza texto, opcional border.
 
     """
-    font = fontxtra('comicoro', 18)
+    font = fontxtra('comicoro', 20)
 
     # if bgcoltext is not None:
     #     texto = font.render(text, True, color, bgcoltext)
@@ -74,9 +96,8 @@ def textra(screen, text='text here...', pos=[0, 0], color='gold', brcolor=None, 
     texto = font.render(text, True, color)
 
     texto_rect = texto.get_rect()
-
     border = textrabr(tl,tr,bl,br)
-    print(border)
+    # print(border)
     # for k, w in kwargs:
     #     border = []
     #     border.append(w)

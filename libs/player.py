@@ -1,12 +1,12 @@
 import pygame
 from pygame.locals import *
-from .pygamextras import asset, H, W
 from random import randrange
+from .pygamextras import asset, H, W, screen
+
 
 class Player(pygame.sprite.Sprite):
 
     image = pygame.image.load(asset('assets/img','player-anim.png'))
-
     sprites = []
     
     sprites.append(image.subsurface(0, 0, 32, 64))    # Stay_R0
@@ -26,21 +26,19 @@ class Player(pygame.sprite.Sprite):
     sprites.append(pygame.transform.flip(sprites[2], True, False))# Walk_L0
     sprites.append(pygame.transform.flip(sprites[3], True, False))# Walk_L1
 
-    gui_answer = []
     
     
-    def __init__(self, location=[W//2, H//2], speed=3, W=W, H=H):
+    def __init__(self, location=[W//2, H//2], speed=2, surface=screen, W=W, H=H):
         pygame.sprite.Sprite.__init__(self)
         self.W, self.H = W, H
         self.movex = location[0]
         self.movey = location[1]
-
-       
+        self.surface = surface
         self.rect = Rect(location[0], location[1], 32, 64) # self.image.get_rect()
         
         #Creando la gui
-        self.collide_rect = Rect(location[0], location[1], 32, 32)
-        self.collide_rect.bottomleft = self.rect.topright
+        self.gui_rect = Rect(location[0], location[1], 32, 32)
+        self.gui_rect.midbottom = self.rect.midtop
 
         self.speed = speed
         self.current_sprite = 1 #constante de velocidad = 1000
@@ -52,10 +50,9 @@ class Player(pygame.sprite.Sprite):
         self.vars = {'left': False, 'right': False, 'up': False, 'down': False, 'last_dir':'down', 'debug':False, 'location':[self.rect.x, self.rect.y]}
 
         # Cargando el sprite.
-
-        
-
         self.spritesheet = self.sprites
+
+        self.gui_info = Uix()
     
 
     def control(self, x, y):
@@ -65,10 +62,12 @@ class Player(pygame.sprite.Sprite):
         self.movex += x
         self.movey += y
 
-    def debug(self, debug):
-        if debug:
-            return pygame.draw.rect(screen, 'gold', self.rect, 1)
-
+    def debug(self, state=False):
+        if state == 'collider':
+            pygame.draw.rect(self.surface, 'gold', (self.rect.x, self.rect.y, 32, 64), 1)
+            self.gui_info.update('interrogation')
+        elif state:
+            pygame.draw.circle(self.surface, 'violet', (self.rect.midtop), 16, 1)
 
     # implementar este metodo para reducir codigo en update
     def select_sub_sprite(self, val_a, val_b):
@@ -76,47 +75,9 @@ class Player(pygame.sprite.Sprite):
         self.sprites = self.sprites[val_a:val_b]
         return self.sprites
 
-    def control_player(self, event):
-        """Por mejorar se detiene en algun punto, no se puede mover mas de una vez?
-        hacia los vectores distintos"""
-        if event.type == KEYDOWN:
-            if event.key in (K_UP, K_w):
-                self.vars['up'] = True
-            if event.key in (K_DOWN, K_s):
-                self.vars['down'] = True
-            if event.key in (K_LEFT, K_a):
-                self.vars['left'] = True 
-            if event.key in (K_RIGHT, K_d): 
-                self.vars['right'] = True
-        elif event.type == KEYUP:
-            if event.key in (K_UP, K_w):
-                self.vars['up'] = False
-            if event.key in (K_DOWN, K_s):
-                self.vars['down'] = False 
-            if event.key in (K_LEFT, K_a): 
-                self.vars['left'] = False
-            if event.key in (K_RIGHT, K_d): 
-                self.vars['right'] = False
 
+    def update(self):
 
-    def player_up(self):
-        self.vars['last_dir'] = 'up'
-
-    def player_down(self):
-        self.vars['last_dir'] = 'down'
-
-    def player_left(self):
-        self.vars['last_dir'] = 'left'
-
-    def player_right(self):
-        self.vars['last_dir'] = 'right'
-
-
-
-    def update(self, surface):
-
-        # Gui draw
-        pygame.draw.rect(surface, 'gold', (self.rect.x, self.rect.y-16, 32, 32), 1)
 
         if self.vars['down']:
             if not self.rect.y + self.rect.height > self.H-(self.H//10):
@@ -183,7 +144,6 @@ class Player(pygame.sprite.Sprite):
         self.vars['location'][0] = self.rect.x
         self.vars['location'][1] = self.rect.y
 
-        
 
         # Constante de velocidad...
         self.current_sprite += self.aleatorio/10000  # aumente # de frames entre cada FPS
@@ -194,18 +154,104 @@ class Player(pygame.sprite.Sprite):
         
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
         
-        # self.surface.blit(self.debug(), self.location)
 
-    def gui_render(self, simbol, vector, lifetime):
+    def gui_draw(self):
         """Muestra el simbolo de la interfaz correspondiente
-        
         Ejemplos:
         Pregunta ?
         Admiracion !
-
         """
-        self.simbol = simbol
-        self.vector = vector
-        self.lifetime = lifetime
-                #Si hay colision con el grupo tienda
+        pygame.sprite.Sprite.__init__(self)
+        pass
 
+    def control_player(self, event):
+        """Por mejorar se detiene en algun punto, no se puede mover mas de una vez?
+        hacia los vectores distintos"""
+        if event.type == KEYDOWN:
+            if event.key in (K_UP, K_w):
+                self.vars['up'] = True
+            if event.key in (K_DOWN, K_s):
+                self.vars['down'] = True
+            if event.key in (K_LEFT, K_a):
+                self.vars['left'] = True 
+            if event.key in (K_RIGHT, K_d): 
+                self.vars['right'] = True
+        elif event.type == KEYUP:
+            if event.key in (K_UP, K_w):
+                self.vars['up'] = False
+            if event.key in (K_DOWN, K_s):
+                self.vars['down'] = False 
+            if event.key in (K_LEFT, K_a): 
+                self.vars['left'] = False
+            if event.key in (K_RIGHT, K_d): 
+                self.vars['right'] = False
+
+
+    def player_up(self):
+        self.vars['last_dir'] = 'up'
+
+    def player_down(self):
+        self.vars['last_dir'] = 'down'
+
+    def player_left(self):
+        self.vars['last_dir'] = 'left'
+
+    def player_right(self):
+        self.vars['last_dir'] = 'right'
+
+
+class Uix(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.aleatorio = randrange(1, 900)
+        self.speed = 1
+        self.current_sprite = 1 #constante de velocidad = 1000
+        self.frame = 0
+        self.location = (0,0)
+        self.image = pygame.image.load(asset('assets/img','gui_sprite.png'))
+        self.sprites = []
+
+
+    def update(self, plin_state):
+
+        if plin_state == 'interrogation':
+            self.rect = Rect(self.location[0],self.location[1], 15, 15)
+            # interrogation
+            self.sprites.append(self.image.subsurface(0, 0, 15, 15))
+            self.sprites.append(self.image.subsurface(0, 0, 15, 15))
+            self.sprites.append(self.image.subsurface(0, 0, 15, 15))
+            self.sprites.append(self.image.subsurface(0, 0, 15, 15))
+        elif plin_state == 'exclamation':
+            # exclamation
+            self.sprites.append(self.image.subsurface(0, 16, 15, 15))
+            self.sprites.append(self.image.subsurface(16, 16, 15, 15))
+            self.sprites.append(self.image.subsurface(0, 16, 15, 15))
+            self.sprites.append(self.image.subsurface(32, 16, 15, 15))
+
+        if plin_state == 'bill':
+            # MecaroX Bill icon
+            self.sprites.append(self.image.subsurface(0, 32, 20, 12))
+
+        # badges
+        if plin_state == 'good_badge':
+            # green good badge
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        elif plin_state == 'normal_badge':
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        elif plin_state == 'regular_badge':
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        elif plin_state == 'bad_badge':
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        elif plin_state == 'premium_badge':
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        elif plin_state == 'lux_badge':
+            self.sprites.append(self.image.subsurface(0, 48, 8, 6))
+        
+        # Constante de velocidad...
+        self.current_sprite += self.aleatorio/10000  # aumente # de frames entre cada FPS
+
+        if self.current_sprite > len(self.sprites):
+            self.current_sprite = 0
+
+        self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
+        print(self.rect)

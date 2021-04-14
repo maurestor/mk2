@@ -13,7 +13,8 @@ import json
 
 from libs.pygamextras import *
 from libs.stores import Store, MultiShop
-from libs.bg_elements import Background
+from libs.bg_ui_elements import Background
+from libs.menus import Menu
 
 
 from libs.player import Player
@@ -197,9 +198,9 @@ def options():
     count += 1
 
 
-def debug(var):
-    return pygame.draw.rect(screen, 'gold', var, 1)
-    # print(rect)
+# def debug(var):
+#     return pygame.draw.rect(screen, 'gold', var, 1)
+#     # print(rect)
 
 
 def active_stats():
@@ -384,22 +385,14 @@ def main_game():
     while running:
         screen.fill('black')
 
+        # Renderizar el piso
+        background.update(screen, (player.bg[0], player.bg[1]))
+
         stats['frame_counter'] += 1
         
         # Estadisticas
         active_stats()
-
-        # menu_player = Menu Item Player
-        #
-        w_menu_player = int((W/100)*80)
-        h_menu_player = int((H/100)*80)
-
-        menu_player = pygame.Surface((w_menu_player, h_menu_player))
-        # menu_player_h_center, menu_player_w_center = menu_player.get_height()/2, menu_player.get_width()/2
-        menu_player.get_rect()
-        # menu_player.center
-        menu_player.set_alpha(200)
-        menu_player.fill('white')
+        
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -461,20 +454,18 @@ def main_game():
                 elif event.key == K_F4 and key_press["F4_key"]:
                     key_press["F4_key"] = False
 
-            elif event.type == MOUSEBUTTONDOWN:
+
+            if event.type == MOUSEBUTTONDOWN and key_press["F4_key"]:
                 if player.rect.collidepoint(event.pos):
                     print('player')
                     moving = True
-                elif store.rect.collidepoint(event.pos):
+                if store.rect.collidepoint(event.pos):
                     moving = True
                     print('shop')
-
-            elif event.type == MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP and key_press["F4_key"]:
                 moving = False
-            elif event.type == MOUSEMOTION and moving:
+            elif event.type == MOUSEMOTION and moving and key_press["F4_key"]:
                 #Moviendo direccion del personaje con el mouse
-                
-                
                 if player.rect.collidepoint(event.pos):
                     player.control(event.rel[0],event.rel[1])
                     if event.rel[0] > 0:
@@ -488,70 +479,47 @@ def main_game():
                     # debug(player.rect)
                 elif store.rect.collidepoint(event.pos):
                     store.control(event.rel[0],event.rel[1])
-                    debug(store.rect)
-                print(event.rel)
-        
+                    store.debug(store.rect)
+                # print(event.rel)
 
-
-        if key_press["F4_key"]:
-            debug(player.rect)
-            debug(player.collide_rect)
-            debug(store.rect)
+        if key_press['F4_key']:
+            player.debug('collider')
+            # shop.debug(store.rect)
             run_time()
 
-        # Draw principal elements of game
+            # Muestra la ubicacion del juagor
+            textra(screen, f"Player_loc: x({player.movex:4.3f}), y({player.movey:4.3f})", (20, 40), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            # Muestra el mouse
+            textra(screen, f"Mouse: x({mx:4.3f}), y({my:4.3f})", (20, 60), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            str_dia = str_time['dia']
+            textra(screen, f'{str_dia} dias {tnow[0]:6.2f}',(20, 80), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            # Muestra la hora real.
+            textra(screen, f'Hora: {hora_real}', (50+(W/2), 34), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            # Muestra el momento del dia
+            textra(screen, '{}'.format(str_time['moment_time']), (50+(W/2), 55), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            textra(screen, f'{vday}', (50+(W/2), 75), 'black', 'black', 1, None, 'white', 5,5,5,5)
 
-        # Renderizar el piso
-        background.update(screen, (player.bg[0], player.bg[1]))
+
 
         # renderizar las tiendas
         store_group.update()
         store_group.draw(screen)
 
         # renderizar jugador
-        player_group.update(screen)
-        
+        player_group.update()
         player_group.draw(screen)
-
-        if pygame.sprite.groupcollide(player_group, store_group, False, False):
-            debug(player.rect)
-            debug(store.rect)
-        else:
-            audio_effect('menu')
-
 
         # Abrir menu items
         if key_press["TAB_key"]:
-            # Dibujar el menu en medio
-            screen.blit(menu_player, (((W//2)-w_menu_player/2),
-                        ((H//2)-h_menu_player/2)))
+            menu.show(screen)
 
         # if pygame.sprite.groupcollide(player_group, store_group, False, False):
         if pygame.sprite.groupcollide(player_group, store_group, False, False):
-            debug(player.rect)
-            debug(store.rect)
+            player.debug(True)
+            # player.()
         else:
             audio_effect('menu')
 
-        if key_press['F4_key']:
-            # Muestra la ubicacion del juagor
-            draw_text(f"Player_loc: x({player.movex:4.3f}), y({player.movey:4.3f})",
-                      font, WHITE, screen, 20, 40)
-            # Muestra el mouse
-            draw_text(f"Mouse: x({mx:4.3f}), y({my:4.3f})",
-                      font, WHITE, screen, 20, 60)
-            str_dia = str_time['dia']
-            draw_text(f'{str_dia} dias {tnow[0]:6.2f}',
-                      font, 'white', screen, 20, 80)
-            # Muestra la hora real.
-            draw_text(f'Hora: {hora_real}',
-                      font, 'white', screen, 50+(W/2), 34)
-            # Muestra el momento del dia
-            draw_text('{}'.format(str_time['moment_time']),
-                      font, 'white', screen, 50+(W/2), 55)
-
-            draw_text(f'{vday}',
-                      font, 'white', screen, 50+(W/2), 75)
 
         time_control()
         # 3.- Se actualiza la pantalla
@@ -568,7 +536,7 @@ if __name__ == '__main__':
     # pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
     poswin = poswin(200, 200)
     pygame.init()
-    screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+    # screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
     fps = 60.0
 
     # Tiempo, horas etc.
@@ -589,69 +557,21 @@ if __name__ == '__main__':
     # Carga de sprites
     # Fondo
     background = Background() 
-
+    menu = Menu()
     # Tiendas
     store = Store((0,0))
     store_group = pygame.sprite.Group(store)
 
-    for i in range(2,5):
-        store
-
-    
-    # store2 = Store('middle')
-    # store_group.add(store2)
-    # num = 1
-    # propy = 50
-    # propx = 50
-    # for x in range(num):
-    #     for y in range(num):
-    #         if y==0 and x==0:
-    #             multi = True
-    #             plus = x+y
-    #             exec(f'store{x} = Store((0,0), {plus}, {multi})')
-    #             exec(f'store_group = pygame.sprite.Group(store{x})')
-    #         if not y==0 and not x==0:
-    #             exec(f'store{x} = Store(({propy}*{y}, {propx}*{x}), {plus}, {multi})')
-    #             exec(f'store_group.add(store{x})')
-    #             print(store_group)
-
-
-
     # Jugador/Personaje
-    player = Player(speed=2)
+    player = Player()
     player_group = pygame.sprite.Group(player)
 
+
     # Declaración de constantes y variables
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-
-    str_time = {'hora': 60,
-                'seg': 0,
-                'dia': 0,
-                'tick': 3141569,
-                'start': 'start',
-                'moment_time': '?'
-                }
-
-    key_press = {"TAB_key": False,
-                 'F4_key': False,
-                 "p_key": False,
-                 }
-
-    stats = {"frame_counter": 0,
-             "extras": '',
-             }
-
-    # player_dialoge = {wellcome: "Hello"}
-    narrator = dict()
-    # png_dialoge = {wellcome: 'Hello {}.'.format(name)}
-
-    # translate = {
-    #     esp: {},
-    #     rus: {},
-    #     jap: {}
-    # }
-    audio_effect('start')
+    str_time = {'hora': 60, 'seg': 0, 'dia': 0, 'tick': 3141569, 'start': 'start', 'moment_time': '?' }
+    key_press = {"TAB_key": False, 'F4_key': False, "p_key": False, }
+    stats = {"frame_counter": 0, "extras": '',}
 
     # Cargando el juego :)
+    audio_effect('start')
     main_menu()

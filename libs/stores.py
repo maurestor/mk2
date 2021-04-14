@@ -34,7 +34,7 @@ class Store(pygame.sprite.Sprite):
     def debug(self, debug):
         if debug:
             return pygame.draw.rect(screen, 'gold', self.rect, 1)
-    
+
     def control(self, x, y):
         """
         control player movement
@@ -59,8 +59,7 @@ class Store(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
 
-    def spawn(self):
-        self.ok = rep
+
         
 
 class MultiShop():

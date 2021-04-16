@@ -5,9 +5,15 @@
 import pygame
 from pygame.locals import *
 import os, random, sys, math
+from random import randrange
 
-W, H = 800, 600
+W, H = 1024, 768
 screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+
+ # Declaración de constantes y variables
+str_time = {'hora': 60, 'seg': 0, 'dia': 0, 'tick': 3141569, 'start': 'start', 'moment_time': '?' }
+key_press = {"TAB_key": False, 'F4_key': False, "p_key": False, }
+stats = {"frame_counter": 0, "extras": '',}
 
 
 def asset(folder_asset=None, file_asset='file.old.png'):
@@ -30,39 +36,20 @@ def asset(folder_asset=None, file_asset='file.old.png'):
     
     return path_asset
 
-# def asset_new(folder_asset=None, file_asset='file.old.png'):
-#     """Busca la ruta absoluta de la carpeta \'assets\' en el OS actual
-
-#     `Params`:
-#     folder_asset: str
-#     file_asset: str
-
-#     Devuelve la imagen/audio/sprite/video/midi del juego.
-#     """
-#     source_dir_file = os.path.dirname(os.path.dirname(__file__))
-#     # print(source_dir_file)
-#     if folder_asset == None:
-#     # Carga de archivos, buscar asset()
-#         path_asset = os.path.join(source_dir_file, '/', file_asset)
-#     else:
-#         path_asset = os.path.join(source_dir_file, folder_asset+'/', file_asset)
-#     # print(path_asset)
-    
-#     return pygame.image.load(asset(folder_asset, file_asset))
-
 
 def poswin(horizontal=50, vertical=50):
     """Posiciona la ventana aleatoriamente dentro de un rango seleccionado
     
     mas caracteristicas
     """
-    if horizontal == 30 and vertical == 30:
-        pass
-    else:
-        horizontal = random.randint(30, horizontal)
-        vertical = random.randint(30, vertical)
+    # if horizontal == 30 and vertical == 30:
+    #     pass
+    # else:
+    #     x = horizontal = random.randint(30, horizontal)
+    #     y = vertical = random.randint(30, vertical)
 
-    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (horizontal, vertical)
+    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (horizontal,vertical)
+
 
 
 def pygexit():
@@ -138,3 +125,22 @@ def show_fonts():
         print(f)
 
 
+class ActionBadges:
+        def __init__(self):
+            '''Devuelve aleatoriamente un nombre de actionbadges'''
+            self.actionbadges = ['interrogation','exclamation', 'bill','good_badge','normal_badge', 'regular_badge','bad_badge', 'premium_badge','lux_badge']
+            self.actionbadges_rand = random.randrange(0,len(self.actionbadges))
+            # return actionbadges_rand
+            self.actionbadge = self.actionbadges[self.actionbadges_rand]
+
+        def drawbadge(self):
+            return self.actionbadge
+
+        def __str__(self):
+            return self.actionbadge
+
+def character_selected():
+    '''Selecciona el tipo de personaje a mostrar'''
+    diccionario = ['verde', 'azul', 'rojo', 'nanaranjas']
+    char = random.randrange(0, len(diccionario))
+    return diccionario[char]

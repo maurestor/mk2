@@ -3,6 +3,7 @@
 
 
 import pygame
+from pygame import examples
 import os
 import sys
 import time
@@ -12,12 +13,12 @@ import json
 
 
 from libs.pygamextras import *
-from libs.stores import Store, MultiShop
+from libs.player import Player, PlayerUi
+from libs.stores import Stores
 from libs.bg_ui_elements import Background
 from libs.menus import Menu
 
 
-from libs.player import Player
 import pprint
 # from libs.items import Items
 
@@ -26,6 +27,7 @@ import pprint
     
     USA DE TODO.
     NO CAMBIAR LO QUE YA FUNCIONA!
+    AUN MÍNIMO QUE PAREZCA CADA DETALLE ES MUY IMPORTANTE!
     NO TE CASES CON LAS COSAS!
     
     # Ten cuidado de usar la linea 1 incorrectamente, en linux causa conflicto el interprete
@@ -100,7 +102,7 @@ def dialogos(logro_id):
     pass
 
 
-def audio_effect(name, stop_time=False, vol=0.3):
+def audio_effect(name, stop_time=False, vol=0.5):
     """Cargar efectos de audio con su nombre 
     name: menu, start, exit
     stop_time: Boulean
@@ -116,7 +118,7 @@ def audio_effect(name, stop_time=False, vol=0.3):
     if name == 'start':
         # pygame.mixer.music.load('./assets'assets/music',/desktop-login.ogg')
         pygame.mixer.music.load(asset('assets/music', 'desktop-login.ogg'))
-        pygame.mixer.music.set_volume(vol)
+        pygame.mixer.music.set_volume(0.1)
         sound = pygame.mixer.music.play()
 
     if name == 'exit' and stop_time:
@@ -213,7 +215,7 @@ def active_stats():
     mx, my = pygame.mouse.get_pos()
 
 
-pprint.pprint(locals())
+# pprint.pprint(locals())
 
 
 # Meter el sistema de botones y menus a una clase por favor :)
@@ -292,6 +294,7 @@ def options_menu():
 # Inicio del juego
 # ############################################################################
 def main_menu():
+    main_game()
     """Meca Menu inventario. 
     TODO.
     Crear un rectangulo HW al 75%. 
@@ -372,19 +375,20 @@ def main_menu():
 # Loop Principal
 # ############################################################################
 
+
 def main_game():
     """Función principal del juego"""
 
     # Guardar posicion
-    global tnow, mx, my, t0, str_time, stats
+    global tnow, mx, my, t0, str_time, stats, playerui
 
+    
     moving = False
     running = True  # Activador del menu
     der = 0  # Restableciendo el movimiento.
     # Bucle principal
     while running:
         screen.fill('black')
-
         # Renderizar el piso
         background.update(screen, (player.bg[0], player.bg[1]))
 
@@ -412,6 +416,7 @@ def main_game():
                 if event.key == K_ESCAPE:
                     key_press["TAB_key"] = False
                     audio_effect('menu')
+                    quit()
                     main_menu()
 
             # Movimiento del personaje.
@@ -500,7 +505,7 @@ def main_game():
             textra(screen, f'{vday}', (50+(W/2), 75), 'black', 'black', 1, None, 'white', 5,5,5,5)
 
 
-
+        
         # renderizar las tiendas
         store_group.update()
         store_group.draw(screen)
@@ -509,23 +514,33 @@ def main_game():
         player_group.update()
         player_group.draw(screen)
 
+
+
         # Abrir menu items
         if key_press["TAB_key"]:
             menu.show(screen)
 
-        # if pygame.sprite.groupcollide(player_group, store_group, False, False):
-        if pygame.sprite.groupcollide(player_group, store_group, False, False):
-            player.debug(True)
-            # player.()
-        else:
-            audio_effect('menu')
+
+        #Colisiones checar esta declaracion...
+        # Importante con el uso de las mecanicas y los sprites....
+        collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
+        # collidegroup = pygame.sprite.groupcollide(player_collider, store_collider, False, False)
+
+        if collidegroup:
+            if playerui == 'exclamation':
+                player.debug(playerui)
+            else:
+                player.debug(playerui.drawbadge())
+            store.debug()
+        elif not collidegroup:
+            # Reiniciando el contador aleatorio.
+            playerui = ActionBadges()
+            audio_effect('menu', 0.3)
+
 
 
         time_control()
-        # 3.- Se actualiza la pantalla
         pygame.display.update()
-        pygame.display.set_caption("Local Market » {:3.2f}".format(tnow[0]))
-        # pygame.display.update()
 
 
 if __name__ == '__main__':
@@ -534,9 +549,11 @@ if __name__ == '__main__':
     # Loading Starting System...
     # ############################################################################
     # pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
-    poswin = poswin(200, 200)
+    
     pygame.init()
     # screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+    pygame.display.set_caption("Local Market ")
+
     fps = 60.0
 
     # Tiempo, horas etc.
@@ -558,20 +575,30 @@ if __name__ == '__main__':
     # Fondo
     background = Background() 
     menu = Menu()
+
     # Tiendas
-    store = Store((0,0))
+    for i in range(10):
+        pass
+
+    store = Stores()
     store_group = pygame.sprite.Group(store)
+    # store_collider = pygame.sprite.Group(store.collide_rect)
 
     # Jugador/Personaje
-    player = Player()
+    
+
+    player = Player(character=character_selected())
+    # player_collider = pygame.sprite.Group(player.collide_rect)
     player_group = pygame.sprite.Group(player)
+    
+    everything = pygame.sprite.Group(player)
+    everything.add(store)
+    # everything.add(background)
+      
+    
 
-
-    # Declaración de constantes y variables
-    str_time = {'hora': 60, 'seg': 0, 'dia': 0, 'tick': 3141569, 'start': 'start', 'moment_time': '?' }
-    key_press = {"TAB_key": False, 'F4_key': False, "p_key": False, }
-    stats = {"frame_counter": 0, "extras": '',}
-
+    playerui = 'exclamation'
     # Cargando el juego :)
     audio_effect('start')
+    
     main_menu()

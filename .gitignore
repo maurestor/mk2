@@ -1,0 +1,7 @@
+# Comenting
+
+/.vscode
+/.conf
+savegame.json
+/libs/__pycache*
+__pycache*

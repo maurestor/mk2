@@ -2,16 +2,24 @@ import pygame
 from pygame.locals import *
 from .pygamextras import *
 
-class Store(pygame.sprite.Sprite):
-    image = pygame.image.load(asset('assets/img','stores-anim.png'))
+class Stores(pygame.sprite.Sprite):
 
-    def __init__(self, location=[], pid=1, multi=False):
+    def __init__(self, location=[0,0], pid=1, multi=False):
         pygame.sprite.Sprite.__init__(self)
-        if location == 'middle':
-            location = (W//2,H//2)
-            self.rect = Rect(location[0], location[1], 128, 128)
-        else:
-            self.rect = Rect(location[0], location[1], 128, 128)
+        self.image = pygame.image.load(asset('assets/img','stores-anim.png'))
+        self.rect = self.image.get_rect()
+        self.rect.w = 128
+        self.rect.x = location[0]
+        self.rect.y = location[1]
+        
+
+        self.collide_rect = Rect(self.rect.x, self.rect.y, 128, 32)
+        self.collide_rect.x = self.rect.bottomleft[0]
+        self.collide_rect.y = self.rect.bottomleft[1]
+        
+        # self.collide_rect.h = 64
+        
+        # self.rect = Rect(location[0], location[1], 128, 128)
 
 
         self.movex = location[0]
@@ -29,11 +37,17 @@ class Store(pygame.sprite.Sprite):
         self.spritesheet = self.sprites
         
         self.vars = {'id':pid, 'type':'store', 'location':[location[0], location[1]]}
+        # store_group = pygame.sprite.Group(Stores())
+        # return store_group
+    
         
 
-    def debug(self, debug):
-        if debug:
-            return pygame.draw.rect(screen, 'gold', self.rect, 1)
+    # def debug(self, debug):
+    #     if debug:
+    #         return pygame.draw.rect(screen, 'gold', self.rect, 1)
+    def debug(self):
+        pygame.draw.rect(screen, 'gold', (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1, 5)
+        pygame.draw.rect(screen, 'red', (self.collide_rect[0], self.collide_rect[1], 128, 32), 1, 5)
 
     def control(self, x, y):
         """
@@ -59,16 +73,3 @@ class Store(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
 
-
-        
-
-class MultiShop():
-    pos_storex= 1; pos_storey = 1
-
-    def __init__(self):
-        """Crear varias tiendas"""
-        # pos_storex= 1; pos_storey = 1
-
-        pass
-                
-                # x += self.pos_storex; y += self.pos_storey

@@ -374,4 +374,4 @@ class PlayerUi(pygame.sprite.Sprite):
         self.deg += 5
         if self.deg > 360:
             self.deg = 0
-        # self.image = pygame.transform.rotate(self.image, self.deg)
+        self.image = pygame.transform.rotate(self.image, self.deg)

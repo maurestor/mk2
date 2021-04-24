@@ -260,7 +260,8 @@ def main_game():
     while running:
         screen.fill('black')
         # Renderizar el piso
-        background.update(screen, (player.bg[0], player.bg[1]))
+        # background.update(screen, (player.bg[0], player.bg[1]))
+        background.tiles((player.bg[0], player.bg[1]))
 
         stats['frame_counter'] += 1
 
@@ -405,16 +406,17 @@ def main_game():
             # if playerui == 'exclamation':
             #     player.debug(playerui)
             # else:
+            store.debug()
             player.debug(playerui.drawbadge())
         elif not colliderect:
             # Reiniciando el contador aleatorio.
             playerui = ActionBadges()
-            audio_effect('menu', 0.5)
+            # audio_effect('menu', 0.5)
 
-        number = 3
-        for x in range(number):
-            for y in range(number):
-                pygame.draw.rect(screen, 'orange', ((x*256),(y*256), 128, 128), 1)
+        # number = 3
+        # for x in range(number):
+        #     for y in range(number):
+        #         pygame.draw.rect(screen, 'orange', ((x*256),(y*256), 128, 128), 1)
 
         # Renderizando la interfaz de usuario
         statistic=Stats()
@@ -453,14 +455,14 @@ if __name__ == '__main__':
     # Cargando el fondo de la tienda
     #Cargando la tienda
     store = Stores([200,200])
-    # Loading background, please pos before the background
     store_bg = StoreBg([store.rect.x, store.rect.y])
+    # Loading background, please pos before the background
     
     store_group = pygame.sprite.Group(store)
     store_group.add(store_bg)
     # store_collider = pygame.sprite.Group(store.collide_rect)
     
-    player = Player(character=character_selected())
+    player = Player(character=character_selected(), speed=6)
     # player_collider = pygame.sprite.Group(player.collide_rect)
     player_group = pygame.sprite.Group(player)
     

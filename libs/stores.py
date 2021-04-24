@@ -35,11 +35,12 @@ class Stores(pygame.sprite.Sprite):
     def debug(self):
         #Establecer rect despues de su asignacion NO MOVER!!!
         
-        textra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
         
         if key_press['F4_key']:
             pygame.draw.rect(screen, 'gold', (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1, 5)
 
+            textra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
+        
         pygame.draw.rect(screen, 'red', [
                 self.rect.x,
                 self.rect.y,
@@ -59,7 +60,7 @@ class Stores(pygame.sprite.Sprite):
 
     def update(self):
         
-        self.current_sprite += 0.005  # aumente # de frames entre cada FPS
+        self.current_sprite += 0.05  # aumente # de frames entre cada FPS
         if self.current_sprite > len(self.sprites):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame

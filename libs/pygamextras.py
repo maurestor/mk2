@@ -9,7 +9,7 @@ from datetime import datetime
 import os, random, sys, math
 from random import randrange
 
-W, H = 1024, 768
+W, H = 1280, 960
 screen = pygame.display.set_mode((W, H), pygame.HWACCEL)
 
 mx, my = 0, 0

@@ -1,4 +1,4 @@
-from .pygamextras import asset, screen, key_press
+from .pygamextras import *
 from .player import Player
 import pygame
 from pygame.locals import *
@@ -22,7 +22,6 @@ class Background:
         surf.blit(self.image, (512+pos[0], 0+pos[1]))
         surf.blit(self.image, (0+pos[0], 512+pos[1]))
         surf.blit(self.image, (512+pos[0], 512+pos[1]))
-
 
 
         if key_press['F4_key']:
@@ -56,7 +55,41 @@ class Background:
 #         pass
 
 
+
+class Stats:
+    def __init__(self):
+        str_dia = str_time['dia']
+        mx, my = pygame.mouse.get_pos()
+        if key_press['F4_key']:
+            
+            # Muestra el mouse
+            textra(f"Mouse, X: {mx}, Y: {my}", (20, 60), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            textra(f'{str_dia} dias {tnow[0]:6.3f}',(20, 80), 'black', 'black', 1, None, 'white', 5,5,5,5)
+
+
+            # Muestra la hora real.
+            textra(f'Hora: {hora_real}', (50+(W/2), 34), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            # Muestra el momento del dia
+            textra('{}'.format(str_time['moment_time']), (50+(W/2), 55), 'black', 'black', 1, None, 'white', 5,5,5,5)
+            textra(f'{vday}', (50+(W/2), 75), 'black', 'black', 1, None, 'white', 5,5,5,5)
+
+
 class UserInterface():
     def __init__(self):
+        self.gui()
+    
+    def gui(self):
         '''Dibuja la interface de usuario general de estadisticas y conroles del mercado'''
-        pass      
+
+        str_dia = str_time['dia']
+        
+        # pygame.draw.arc(screen, 'green', [W-100, 0, 250, 250], math.pi, 3*math.pi/2)
+        
+        pygame.draw.rect(screen, 'chartreuse4', [W-202, 0, 302, 37], 0, 0, 5, 0, 15)
+        pygame.draw.ellipse(screen, 'chartreuse4', [W-102, -102, 205, 205])
+        pygame.draw.rect(screen, 'chartreuse3', [W-200, 0, 300, 35], 0, 0, 5, 0, 15)
+        pygame.draw.ellipse(screen, 'chartreuse3', [W-100, -100, 200, 200])
+
+        textra(f'Counter {str_dia}, {tnow[0]:6.1f}', [W-190, 8], 'black')
+
+

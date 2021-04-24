@@ -4,6 +4,7 @@ from .pygamextras import W, H
 
 
 class Menu:
+    
     def __init__(self):
         # menu = Menu Item Player
         #
@@ -15,7 +16,6 @@ class Menu:
         # menu.center
         self.menu.set_alpha(200)
         self.menu.fill('white')
-
 
     def show(self, surface):
         # Dibujar el menu en medio

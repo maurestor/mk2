@@ -14,9 +14,10 @@ import json
 
 from libs.pygamextras import *
 from libs.player import Player, PlayerUi
-from libs.stores import Stores
-from libs.bg_ui_elements import Background
+from libs.stores import Stores, StoreBg
+from libs.bg_ui_elements import Background, Stats, UserInterface
 from libs.menus import Menu
+from libs.particles import ParticlesPrinciple
 
 
 import pprint
@@ -86,136 +87,6 @@ import pprint
         retrogaming
 
 """
-# ############################################################################
-# Cargando funciones y metodos
-# ############################################################################
-
-
-def dialogos(logro_id):
-    """Dibuja el dialogo a partir del logro realizado.
-    Se le introduce el id de logro, o logros en cola?
-    Guarda los logros en un archivo o una base de datos.
-        si se grabro continua
-    Devuelve el dialogo correspondiente al logro
-
-    """
-    pass
-
-
-def audio_effect(name, stop_time=False, vol=0.5):
-    """Cargar efectos de audio con su nombre 
-    name: menu, start, exit
-    stop_time: Boulean
-    vol: 0.1, 0.5, 1
-    """
-    # sound = None
-    if name == 'menu':
-        # pygame.mixer.music.load('./assets'assets/music',/effect_nicholasdaryl_swing.wav')
-        pygame.mixer.music.load(asset('assets/music', 'effect_nicholasdaryl_swing.wav'))
-        pygame.mixer.music.set_volume(vol)
-        sound = pygame.mixer.music.play()
-
-    if name == 'start':
-        # pygame.mixer.music.load('./assets'assets/music',/desktop-login.ogg')
-        pygame.mixer.music.load(asset('assets/music', 'desktop-login.ogg'))
-        pygame.mixer.music.set_volume(0.1)
-        sound = pygame.mixer.music.play()
-
-    if name == 'exit' and stop_time:
-        pygame.mixer.music.load(asset('assets/music', 'desktop-logout.ogg'))
-        pygame.mixer.music.set_volume(vol)
-        sound = pygame.mixer.music.play()
-        time.sleep(3000)  # sound.get_length())
-
-
-def run_time():
-    tfull = 720  # Ciclo completo, dia entero
-    thour = tfull/24  # Una hora
-    if tnow[0] >= 0 and tnow[0] < thour*7:
-        str_time['moment_time'] = 'Es muy temprano'
-    elif tnow[0] > 7 and tnow[0] < thour*12:
-        str_time['moment_time'] = 'Es de maniana'
-    elif tnow[0] > thour*12 and tnow[0] < thour*19:
-        str_time['moment_time'] = "Es de tarde"
-    elif tnow[0] > thour*19 and tnow[0] < tfull:
-        str_time['moment_time'] = 'Es de noche'
-
-
-def time_control():
-    """Inicia el control de tiempo global 
-
-        Muestra informacion del tiempo, ticks, hora especifica
-
-        Ticks                   Tiempo          Tiempo relativo
-        1000                =   1 segundo
-        60,000              =   1 minuto    =   60 segundos
-        36,000,000          =   1 hora      =   60 minutos
-        864,000,000         =   1 dia       =   24 horas
-        6,048,000,000       =   1 semana    =   7 dias
-        ...
-
-        720 segundos son 12 minutos
-        El tiempo del juego hace un reinicio cada 12 minutos
-        Tiene sus ciclos de dia y noche.
-        0 a 180 a 360 a 540 y 720, el dia se divide de esta forma.
-    """
-    global t0, hora_real, tfull, vday
-    # Control del tiempo
-    if tnow[1] == False or tnow[0] >= tfull:
-        tnow[0], tnow[1] = 0, True
-        t0 = time.time()
-        str_time['dia'] += 1
-    elif tnow[1]:
-        tnow[0] = time.time() - t0
-
-    pygame.draw.rect(screen, 'yellow', (0, 0, tnow[0], 10))
-
-    vday = tfull / 86400
-    now = datetime.now()
-    hora_real = now.strftime("%I:%M:%S %p")
-
-
-# sustituir por textra desde pygamextras
-def draw_text(text, font, color, surface, x, y):
-    """ Dibuja texto en pantalla """
-
-    surface = font.render(text, True, (0, 0, 0), (255, 255, 255, 100))
-    # surface.get_rect()
-    # surface = surface.center
-    screen.blit(surface, (x, y))
-
-
-# Meter el sistema de botones y menus a una clase por favor :)
-def btn_draw(btn, point, color_active, color_hover):
-    """Cambia color al pasar el raton sobre el elemento"""
-    collide = btn.collidepoint(point)
-    color = color_hover if collide else color_active
-    pygame.draw.rect(screen, color, btn)
-
-
-# Meter el sistema de botones y menus a una clase por favor :)
-def options():
-    global count
-    print("Llamando a opciones: %s :) " % str(count))
-    count += 1
-
-
-# def debug(var):
-#     return pygame.draw.rect(screen, 'gold', var, 1)
-#     # print(rect)
-
-
-def active_stats():
-    """ 
-    global playtime_total
-    milliseconds = clock.tick(fps_out)
-    playtime_total += milliseconds / 500.0
-    """
-    global mx, my
-    mx, my = pygame.mouse.get_pos()
-
-
-# pprint.pprint(locals())
 
 
 # Meter el sistema de botones y menus a una clase por favor :)
@@ -375,14 +246,13 @@ def main_menu():
 # Loop Principal
 # ############################################################################
 
-
 def main_game():
     """Función principal del juego"""
 
     # Guardar posicion
     global tnow, mx, my, t0, str_time, stats, playerui
 
-    
+    contador = 0
     moving = False
     running = True  # Activador del menu
     der = 0  # Restableciendo el movimiento.
@@ -393,10 +263,10 @@ def main_game():
         background.update(screen, (player.bg[0], player.bg[1]))
 
         stats['frame_counter'] += 1
-        
+
         # Estadisticas
         active_stats()
-        
+        # mx, my = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -411,7 +281,11 @@ def main_game():
                     #     json.dump(stores_vars, f, indent=4, sort_keys=True)
 
                     with open('savegame.json', "w") as f:
-                        json.dump(player.vars, f, indent=4, sort_keys=True)
+                        player_dump = []
+                        player_dump.append(player.vars)
+                        player_dump.append(player.exis)
+
+                        json.dump(player_dump, f, indent=4, sort_keys=True)
 
                 if event.key == K_ESCAPE:
                     key_press["TAB_key"] = False
@@ -459,7 +333,14 @@ def main_game():
                 elif event.key == K_F4 and key_press["F4_key"]:
                     key_press["F4_key"] = False
 
-
+            # Moviendo la rueda del raton
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    contador += 1
+                    print('adelante'+ str(contador))
+                elif event.button == 5:
+                    contador += 1
+                    print('atras' + str(contador))
             if event.type == MOUSEBUTTONDOWN and key_press["F4_key"]:
                 if player.rect.collidepoint(event.pos):
                     print('player')
@@ -467,6 +348,7 @@ def main_game():
                 if store.rect.collidepoint(event.pos):
                     moving = True
                     print('shop')
+                
             elif event.type == MOUSEBUTTONUP and key_press["F4_key"]:
                 moving = False
             elif event.type == MOUSEMOTION and moving and key_press["F4_key"]:
@@ -484,28 +366,23 @@ def main_game():
                     # debug(player.rect)
                 elif store.rect.collidepoint(event.pos):
                     store.control(event.rel[0],event.rel[1])
-                    store.debug(store.rect)
+                    store_bg.control(event.rel[0],event.rel[1])
                 # print(event.rel)
 
+            # Iniciando el evento particulas
+            if event.type == PARTICLE_EVENT:
+                particle1.add_particles([player.rect.x, player.rect.y])
+
+
         if key_press['F4_key']:
-            player.debug('collider')
-            # shop.debug(store.rect)
+            player.debug()
+            store.debug()
+            store_bg.debug()
+            # Desactivar particulas
+            # particle1.emit()
             run_time()
 
-            # Muestra la ubicacion del juagor
-            textra(screen, f"Player_loc: x({player.movex:4.3f}), y({player.movey:4.3f})", (20, 40), 'black', 'black', 1, None, 'white', 5,5,5,5)
-            # Muestra el mouse
-            textra(screen, f"Mouse: x({mx:4.3f}), y({my:4.3f})", (20, 60), 'black', 'black', 1, None, 'white', 5,5,5,5)
-            str_dia = str_time['dia']
-            textra(screen, f'{str_dia} dias {tnow[0]:6.2f}',(20, 80), 'black', 'black', 1, None, 'white', 5,5,5,5)
-            # Muestra la hora real.
-            textra(screen, f'Hora: {hora_real}', (50+(W/2), 34), 'black', 'black', 1, None, 'white', 5,5,5,5)
-            # Muestra el momento del dia
-            textra(screen, '{}'.format(str_time['moment_time']), (50+(W/2), 55), 'black', 'black', 1, None, 'white', 5,5,5,5)
-            textra(screen, f'{vday}', (50+(W/2), 75), 'black', 'black', 1, None, 'white', 5,5,5,5)
 
-
-        
         # renderizar las tiendas
         store_group.update()
         store_group.draw(screen)
@@ -515,29 +392,36 @@ def main_game():
         player_group.draw(screen)
 
 
-
         # Abrir menu items
         if key_press["TAB_key"]:
             menu.show(screen)
 
-
         #Colisiones checar esta declaracion...
         # Importante con el uso de las mecanicas y los sprites....
-        collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
-        # collidegroup = pygame.sprite.groupcollide(player_collider, store_collider, False, False)
+        # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
+        colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
 
-        if collidegroup:
-            if playerui == 'exclamation':
-                player.debug(playerui)
-            else:
-                player.debug(playerui.drawbadge())
-            store.debug()
-        elif not collidegroup:
+        if colliderect:
+            # if playerui == 'exclamation':
+            #     player.debug(playerui)
+            # else:
+            player.debug(playerui.drawbadge())
+        elif not colliderect:
             # Reiniciando el contador aleatorio.
             playerui = ActionBadges()
-            audio_effect('menu', 0.3)
+            audio_effect('menu', 0.5)
 
+        number = 3
+        for x in range(number):
+            for y in range(number):
+                pygame.draw.rect(screen, 'orange', ((x*256),(y*256), 128, 128), 1)
 
+        # Renderizando la interfaz de usuario
+        statistic=Stats()
+        Ui.gui()
+
+        #Renderizar particulas
+        
 
         time_control()
         pygame.display.update()
@@ -545,7 +429,7 @@ def main_game():
 
 if __name__ == '__main__':
 
-    # ############################################################################
+    # ###########################################F#################################
     # Loading Starting System...
     # ############################################################################
     # pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
@@ -558,35 +442,24 @@ if __name__ == '__main__':
 
     # Tiempo, horas etc.
     clock = pygame.time.Clock()
-    t0 = time.time()
-    tnow = [0, True]
-    tfull = 720
-    vday = 0.0
-    hora_real = 0
-
-    # Fuente
-    font = pygame.font.SysFont('consolas', 12, bold=True)
 
     count = None  # Global
     playtime_total = None  # Global
-    mx, my = 0, 0
 
-    # Carga de sprites
-    # Fondo
-    background = Background() 
+
+    background = Background()
     menu = Menu()
 
-    # Tiendas
-    for i in range(10):
-        pass
-
-    store = Stores()
-    store_group = pygame.sprite.Group(store)
-    # store_collider = pygame.sprite.Group(store.collide_rect)
-
-    # Jugador/Personaje
+    # Cargando el fondo de la tienda
+    #Cargando la tienda
+    store = Stores([200,200])
+    # Loading background, please pos before the background
+    store_bg = StoreBg([store.rect.x, store.rect.y])
     
-
+    store_group = pygame.sprite.Group(store)
+    store_group.add(store_bg)
+    # store_collider = pygame.sprite.Group(store.collide_rect)
+    
     player = Player(character=character_selected())
     # player_collider = pygame.sprite.Group(player.collide_rect)
     player_group = pygame.sprite.Group(player)
@@ -594,11 +467,16 @@ if __name__ == '__main__':
     everything = pygame.sprite.Group(player)
     everything.add(store)
     # everything.add(background)
-      
-    
 
-    playerui = 'exclamation'
-    # Cargando el juego :)
-    audio_effect('start')
+    # Cargando la interfaza de usuario
+    Ui = UserInterface()
+
+    # Particulas effects, efectos
+    particle1 = ParticlesPrinciple()
     
+    PARTICLE_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(PARTICLE_EVENT, 25)
+
+
+    audio_effect('start')
     main_menu()

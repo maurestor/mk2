@@ -1,0 +1,19 @@
+[
+    {
+        "id":0,
+        "name":"Manzana",
+        "quantity":128,
+        "quality": -1,
+        "cost":5,
+        "variations":[
+            {
+                "meta": 0,
+                "name": "Roja"
+            },
+            {
+                "meta": 0,
+                "name": "Verde"
+            }
+        ]
+    }
+]

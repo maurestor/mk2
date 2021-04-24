@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 import random
-from .pygamextras import asset, H, W, screen
+from .pygamextras import *
 
 
 class Player(pygame.sprite.Sprite):
@@ -36,60 +36,60 @@ class Player(pygame.sprite.Sprite):
 
         elif self.character in ('blue', 'azul'):
             # Personaje azul
-            self.sprites.append(self.image.subsurface(0, 64, 32, 64))    # Stay_R0
-            self.sprites.append(self.image.subsurface(32, 64, 32, 64))   # Stay_R1
-            self.sprites.append(self.image.subsurface(64, 64, 32, 64))   # Walk_R0
-            self.sprites.append(self.image.subsurface(96, 64, 32, 64))   # Walk_R1
-            self.sprites.append(self.image.subsurface(256, 64, 32, 64))  # Stay_down0   <----
-            self.sprites.append(self.image.subsurface(288, 64, 32, 64))  # Stay_down1
-            self.sprites.append(self.image.subsurface(320, 64, 32, 64))  # Walk_down0
-            self.sprites.append(self.image.subsurface(352, 64, 32, 64))  # Walk_down1
-            self.sprites.append(self.image.subsurface(128, 64, 32, 64))  # Stay_up0
-            self.sprites.append(self.image.subsurface(160, 64, 32, 64))  # Stay_up1
-            self.sprites.append(self.image.subsurface(192, 64, 32, 64))  # Walk_up0
-            self.sprites.append(self.image.subsurface(224, 64, 32, 64))  # Walk_up1
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  # Stay_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  # Stay_L1
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  # Walk_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  # Walk_L1
+            self.sprites.append(self.image.subsurface(0, 64, 32, 64))    
+            self.sprites.append(self.image.subsurface(32, 64, 32, 64))   
+            self.sprites.append(self.image.subsurface(64, 64, 32, 64))   
+            self.sprites.append(self.image.subsurface(96, 64, 32, 64))   
+            self.sprites.append(self.image.subsurface(256, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(288, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(320, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(352, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(128, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(160, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(192, 64, 32, 64))  
+            self.sprites.append(self.image.subsurface(224, 64, 32, 64))  
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
 
-        elif self.character in ('red', 'rojo'):   
+        elif self.character in ('red', 'rojo'):
             # Personaje rojo
-            self.sprites.append(self.image.subsurface(0, 128, 32, 64))    # Stay_R0
-            self.sprites.append(self.image.subsurface(32, 128, 32, 64))   # Stay_R1
-            self.sprites.append(self.image.subsurface(64, 128, 32, 64))   # Walk_R0
-            self.sprites.append(self.image.subsurface(96, 128, 32, 64))   # Walk_R1
-            self.sprites.append(self.image.subsurface(256, 128, 32, 64))  # Stay_down0   <----
-            self.sprites.append(self.image.subsurface(288, 128, 32, 64))  # Stay_down1
-            self.sprites.append(self.image.subsurface(320, 128, 32, 64))  # Walk_down0
-            self.sprites.append(self.image.subsurface(352, 128, 32, 64))  # Walk_down1
-            self.sprites.append(self.image.subsurface(128, 128, 32, 64))  # Stay_up0
-            self.sprites.append(self.image.subsurface(160, 128, 32, 64))  # Stay_up1
-            self.sprites.append(self.image.subsurface(192, 128, 32, 64))  # Walk_up0
-            self.sprites.append(self.image.subsurface(224, 128, 32, 64))  # Walk_up1
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  # Stay_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  # Stay_L1
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  # Walk_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  # Walk_L1
+            self.sprites.append(self.image.subsurface(0, 128, 32, 64))    
+            self.sprites.append(self.image.subsurface(32, 128, 32, 64))   
+            self.sprites.append(self.image.subsurface(64, 128, 32, 64))   
+            self.sprites.append(self.image.subsurface(96, 128, 32, 64))   
+            self.sprites.append(self.image.subsurface(256, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(288, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(320, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(352, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(128, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(160, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(192, 128, 32, 64))  
+            self.sprites.append(self.image.subsurface(224, 128, 32, 64))  
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
 
         elif self.character in ('orange', 'nanaranjas'):
             # Personaje naranja
-            self.sprites.append(self.image.subsurface(0, 192, 32, 64))    # Stay_R0
-            self.sprites.append(self.image.subsurface(32, 192, 32, 64))   # Stay_R1
-            self.sprites.append(self.image.subsurface(64, 192, 32, 64))   # Walk_R0
-            self.sprites.append(self.image.subsurface(96, 192, 32, 64))   # Walk_R1
-            self.sprites.append(self.image.subsurface(256, 192, 32, 64))  # Stay_down0   <----
-            self.sprites.append(self.image.subsurface(288, 192, 32, 64))  # Stay_down1
-            self.sprites.append(self.image.subsurface(320, 192, 32, 64))  # Walk_down0
-            self.sprites.append(self.image.subsurface(352, 192, 32, 64))  # Walk_down1
-            self.sprites.append(self.image.subsurface(128, 192, 32, 64))  # Stay_up0
-            self.sprites.append(self.image.subsurface(160, 192, 32, 64))  # Stay_up1
-            self.sprites.append(self.image.subsurface(192, 192, 32, 64))  # Walk_up0
-            self.sprites.append(self.image.subsurface(224, 192, 32, 64))  # Walk_up1
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  # Stay_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  # Stay_L1
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  # Walk_L0
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  # Walk_L1
+            self.sprites.append(self.image.subsurface(0, 192, 32, 64))    
+            self.sprites.append(self.image.subsurface(32, 192, 32, 64))   
+            self.sprites.append(self.image.subsurface(64, 192, 32, 64))   
+            self.sprites.append(self.image.subsurface(96, 192, 32, 64))   
+            self.sprites.append(self.image.subsurface(256, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(288, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(320, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(352, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(128, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(160, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(192, 192, 32, 64))  
+            self.sprites.append(self.image.subsurface(224, 192, 32, 64))  
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
 
         self.surface = surface
         self.rect = Rect(location[0], location[1], 32, 64)  # self.image.get_rect()
@@ -102,13 +102,14 @@ class Player(pygame.sprite.Sprite):
 
         self.speed = speed
         self.current_sprite = 1  # constante de velocidad = 1000
-        self.aleatorio = random.randrange(1, 900)
+        self.aleatorio = random.randrange(500, 999)
 
         self.frame = 0
         self.bg = [0, 0]
 
         self.vars = {'left': False, 'right': False, 'up': False, 'down': False,
                      'last_dir': 'down', 'debug': False, 'location': [self.rect.x, self.rect.y]}
+        self.exis = {'otro datos':True, 'mas entradas':{'nuevos':True, 'otro':[25, 61, 25]}}
 
         # Cargando el sprite.
         self.spritesheet = self.sprites
@@ -131,16 +132,14 @@ class Player(pygame.sprite.Sprite):
             # badge, self.rect.midtop[0]+8, self.rect.midtop[1]-16)
         playerui_group.draw(self.surface)
 
-    def debug(self, badge_state=None):
-    
-        pygame.draw.rect(self.surface, 'gold',
-                            (self.rect.x, self.rect.y, 32, 64), 1)
-        pygame.draw.rect(self.surface, 'red', (self.rect.midleft[0],self.rect.midleft[1], 32, 32), 1)
+    def debug(self, badge_state='exclamation'):
+        if key_press['F4_key']:
+            pygame.draw.rect(self.surface, 'red',
+                                (self.rect.x, self.rect.y, 32, 64), 1)
+            
+            # Cargando el sprite desde ActionBadges
+            textra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
 
-        pygame.draw.circle(self.surface, 'violet',
-                            (self.rect.topright), 16, 1)
-
-        #Cargando el sprite desde ActionBadges
         self.playerui_draw(badge_state)
 
     # implementar este metodo para reducir codigo en update
@@ -274,6 +273,7 @@ class PlayerUi(pygame.sprite.Sprite):
         self.location = (0, 0)
         self.image = pygame.image.load(asset('assets/img', 'gui_sprite.png'))
         self.rect = self.image.get_rect()
+        self.deg = 0
         # self.rect = Player.rect.midtop[0]+8, Player.rect.midtop[1]-16
 
         self.sprites = []
@@ -371,3 +371,7 @@ class PlayerUi(pygame.sprite.Sprite):
 
         # si es entero cambiar frame
         self.image = self.sprites[int(self.current_sprite)-1]
+        self.deg += 5
+        if self.deg > 360:
+            self.deg = 0
+        # self.image = pygame.transform.rotate(self.image, self.deg)

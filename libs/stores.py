@@ -1,11 +1,20 @@
 import pygame
 from pygame.locals import *
-from .pygamextras import *
 
-class Stores(pygame.sprite.Sprite):
+from .pygamextras import *
+from .menus import Dialogue
+from .items import Items
+from .events import Events
+
+class Stores(pygame.sprite.Sprite, Items, Masking, Events):
 
     def __init__(self, location=[0,0], pid=1, multi=False):
         pygame.sprite.Sprite.__init__(self)
+        Items.__init__(self)
+        Masking.__init__(self, [0,0])
+        Events.__init__(self)
+
+
         self.image = pygame.image.load(asset('assets/img','stores-anim.png'))
         self.rect = self.image.get_rect(top=128)
         self.rect.w = 128
@@ -13,7 +22,6 @@ class Stores(pygame.sprite.Sprite):
         # self.rect.y = 128
         self.rect.x = location[0]
         self.rect.y = location[1]
-        self.surface = screen
         
         # self.collide_rect = Rect(self.rect.left, self.rect.top + 128, self.rect.w, self.rect.h-96)
         
@@ -28,18 +36,59 @@ class Stores(pygame.sprite.Sprite):
 
         self.spritesheet = self.sprites
         
-        self.vars = {'id':pid, 'type':'store', 'location':[location[0], location[1]]}
+        self.vars = {'id':pid, 'type':'basic', 'location':[location[0], location[1]]}
+        
+        #moving plus and minus
+        self.moving = [0, True]
+        self.action = ActionBadges()
+        self.textcolor = TextColors()
+        self.items = Items()
 
+        # self.badge = Badges()
+
+
+
+    def dialogue_box(self):
+        #Bounce list
+        
+
+        # Render mask ##########################
+        mask = Masking((250, 100), debug=1)
+
+        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
+        pygame.draw.rect(mask.mask_surf, 'gray75', (0,0,250, 100), 0)
+        
+        # Renderizado desde Items
+        self.gen_items(mask.mask_rect, mask.mask_surf)
+
+        tit_dialog = TExtra('Tienda X - Items', [5,0], bgcolor='gray50', surface=mask.mask_surf)
+        #texto de ejemplo para poner texto
+        # textra('Hola!!!', [mask.mask_rect.x+5, mask.mask_rect.y+15+self.slide_y], surface=mask.mask_surf)
+        
+        
+        mask.draw(screen, (0,0), (self.rect.right, self.rect.top-50))
+
+        # Se debe establecer la posicion de mask_rect en el contexto/ambito 
+        self.mask_rect.x = self.rect[0]+128;self.mask_rect.y = self.rect[1]-50
+        self.mask_rect.w = 250;self.mask_rect.h = 100
+        # self.mask_rect = self.rect
+        pygame.draw.rect(screen, 'black', (self.mask_rect), 1)
+        # print(self.rect, self.mask_rect)
+        
+        # Render mask ##########################
+        
+        # self.cube.rotate('blueviolet', [100,100,200,200], screen)
     
 
-    def debug(self):
-        #Establecer rect despues de su asignacion NO MOVER!!!
-        
-        
+    def interaction(self):
+
         if key_press['F4_key']:
             pygame.draw.rect(screen, 'gold', (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1, 5)
 
-            textra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
+            pos_store = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'darkslategray1')
+
+            #Salto en debug
+            self.slide_y = bounce(self.items_height, 0, 1)
         
         pygame.draw.rect(screen, 'red', [
                 self.rect.x,
@@ -47,8 +96,11 @@ class Stores(pygame.sprite.Sprite):
                 self.rect.w,
                 self.rect.h],
                 1, 5)
+
+        # Llamar a los dialogos
+        self.dialogue_box()
         
-        # screen.blit(self.surface, [self.rect.x, self.rect.y+128])
+
 
     def control(self, x, y):
         """
@@ -58,19 +110,18 @@ class Stores(pygame.sprite.Sprite):
         self.rect.y += y
 
 
-    def update(self):
+    def update(self, pos=[0,0]):   
         
+
         self.current_sprite += 0.05  # aumente # de frames entre cada FPS
         if self.current_sprite > len(self.sprites):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
 
+        
         self.vars['location'][0] = self.rect.x
         self.vars['location'][1] = self.rect.y
 
-    def draw_stores(self, number):
-        for i in range(number):
-            pass
 
 class StoreBg(pygame.sprite.Sprite):
     '''Usar esta clase para colisionar '''
@@ -88,14 +139,14 @@ class StoreBg(pygame.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
 
-    def debug(self):
+    def interaction(self):
         #Establecer rect despues de su asignacion NO MOVER!!!
         # self.collide_rect = self.rect
         # x = self.collide_rect.x
         # y = self.collide_rect.y+128
         # self.collide_rect.height = 32
 
-        textra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
+        pos_store_bg = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
         
         pygame.draw.rect(screen, 'red', [
                 self.rect.x,

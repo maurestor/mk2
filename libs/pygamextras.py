@@ -7,11 +7,12 @@ from pygame.locals import *
 import time
 from datetime import datetime
 import os, random, sys, math
-from random import randrange
+from random import randrange, randint
 
-W, H = 1280, 960
-screen = pygame.display.set_mode((W, H), pygame.HWACCEL)
 
+W, H = 1280//1.5, 960//1.5
+os.environ['SDL_VIDEO_WINDOW_POS'] = f"{0},{0}"
+screen = pygame.display.set_mode((int(W), int(H)), flags=HWACCEL|RESIZABLE|DOUBLEBUF|NOFRAME)
 mx, my = 0, 0
 
 t0 = time.time()
@@ -176,80 +177,72 @@ def asset(folder_asset=None, file_asset='file.old.png'):
     return path_asset
 
 
-def poswin(horizontal=50, vertical=50):
-    """Posiciona la ventana aleatoriamente dentro de un rango seleccionado
-    
-    mas caracteristicas
-    """
-    # if horizontal == 30 and vertical == 30:
-    #     pass
-    # else:
-    #     x = horizontal = random.randint(30, horizontal)
-    #     y = vertical = random.randint(30, vertical)
-
-    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (horizontal,vertical)
-
-
 def pygexit():
     """Salir definitivamente del prigrama y cerrar la aplicacion del sistema"""
     pygame.quit()
     sys.exit()
 
 
-def fontxtra(font_name='comicoro', size=12):
-    """Genera nombre y tamanio de la fuente"""
-    font = pygame.font.SysFont(font_name, size)
-    return font
+class TExtra:
+    def __init__(self, text='text here...', position=[0, 0], textcolor='gold', brcolor=None, twidth=0, bgcoltext=(255,255,255,0), bgcolor=None, tl=0, tr=0, bl=0, br=0, surface=screen):
+        """Renderiza texto, opcional con borde, color, fondo, color del 
+        borde, transparencia, etc
 
-def textrabr(tl, tr, bl, br):
-    border = []
-    border.append(tl)
-    border.append(tr)
-    border.append(bl)
-    border.append(br)
-    return border
+        Falta mejorar esta clase.
 
+        """
 
-def textra(text='text here...', position=[0, 0], textcolor='gold', brcolor=None, twidth=0, bgcoltext=(255,255,255,0), bgcolor=None, tl=0, tr=0, bl=0, br=0):
-    """Renderiza texto, opcional border.
+        self.fontxtra('comicoro', 20)
 
-    """
-    font = fontxtra('comicoro', 20)
+        # if bgcoltext is not None:
+        #     texto = font.render(text, True, color, bgcoltext)
+        # else:
+        self.texto = self.font.render(text, True, textcolor)
 
-    # if bgcoltext is not None:
-    #     texto = font.render(text, True, color, bgcoltext)
-    # else:
-    texto = font.render(text, True, textcolor)
+        self.texto_rect = self.texto.get_rect()
 
-    texto_rect = texto.get_rect()
-    border = textrabr(tl,tr,bl,br)
-    # print(border)
-    # for k, w in kwargs:
-    #     border = []
-    #     border.append(w)
-    # print(border)
-    # Si el color es agregado se agrega el marco de color.
-    if bgcolor is not None:
-        pygame.draw.rect(screen, bgcolor, (position[0]-3,
-                                       position[1],
-                                       texto_rect.width+4,
-                                       texto_rect.height), 0,
-                                       int(border[0]),
-                                       int(border[1]),
-                                       int(border[2]),
-                                       int(border[3]))
+        self.border = []
+        self.textrabr(tl,tr,bl,br)
+        
+        # print(self.border)
+        # for k, w in kwargs:
+        #     self.border = []
+        #     self.border.append(w)
+        # print(self.border)
+        # Si el color es agregado se agrega el marco de color.
+        if bgcolor is not None:
+            pygame.draw.rect(surface, bgcolor, (position[0]-3,
+                                        position[1],
+                                        self.texto_rect.width+4,
+                                        self.texto_rect.height), 0,
+                                        int(self.border[0]),
+                                        int(self.border[1]),
+                                        int(self.border[2]),
+                                        int(self.border[3]))
 
-    screen.blit(texto, (position[0], position[1]))
+        surface.blit(self.texto, (position[0], position[1]))
 
-    if brcolor is not None:
-        pygame.draw.rect(screen, brcolor, (position[0]-3,
-                                       position[1],
-                                       texto_rect.width+4,
-                                       texto_rect.height), twidth,
-                                       int(border[0]),
-                                       int(border[1]),
-                                       int(border[2]),
-                                       int(border[3]))
+        if brcolor is not None:
+            pygame.draw.rect(surface, brcolor, (position[0]-3,
+                                        position[1],
+                                        self.texto_rect.width+4,
+                                        self.texto_rect.height), twidth,
+                                        int(self.border[0]),
+                                        int(self.border[1]),
+                                        int(self.border[2]),
+                                        int(self.border[3]))
+
+    def fontxtra(self, font_name='comicoro', size=12):
+        """Genera nombre y tamanio de la fuente"""
+        self.font = pygame.font.SysFont(font_name, size)
+
+    def textrabr(self, tl, tr, bl, br):
+        self.border.append(tl)
+        self.border.append(tr)
+        self.border.append(bl)
+        self.border.append(br)
+        # return border
+
 
 
 
@@ -270,12 +263,22 @@ class ActionBadges:
         def __init__(self):
             '''Devuelve aleatoriamente un nombre de actionbadges'''
             self.actionbadges = ['interrogation','exclamation', 'bill','good_badge','normal_badge', 'regular_badge','bad_badge', 'premium_badge','lux_badge']
+            self.dialogues = ['Hola, ', 'Hey, ', 'Que onda!, ', 'Buen dia, ', "Que tal, "]
+            
             self.actionbadges_rand = random.randrange(0,len(self.actionbadges))
             # return actionbadges_rand
             self.actionbadge = self.actionbadges[self.actionbadges_rand]
+            
+            self.dialogues_rand = random.randrange(0,len(self.dialogues))
+            # return actionbadges_rand
+            self.dialogues = self.dialogues[self.dialogues_rand]
+            
 
         def drawbadge(self):
             return self.actionbadge
+
+        def drawresponse(self):
+            return self.dialogues
 
         def __str__(self):
             return self.actionbadge
@@ -286,9 +289,144 @@ def character_selected():
     char = random.randrange(0, len(diccionario))
     return diccionario[char]
 
-diccionario = {'hola':'hello', }
 
 def t(input):
     '''Traductor simple de palabras'''
     for p in diccionario:
         pass
+
+class TextColors:
+    def __init__(self):
+        '''Return color random in a text'''
+        self.counter = 0
+        self.color0 = self.color1 = self.color2 = (255)
+
+    def colorize(self):
+        '''Return color random range'''
+        self.counter += 1
+        if self.counter >= 5:
+            self.counter = 0
+            self.color0 = random.randrange(50, 255)
+            self.color1 = random.randrange(50, 255)
+            self.color2 = random.randrange(50, 255)
+        return (self.color0, self.color1, self.color2)
+
+
+    def render(self, text:str, colorized:bool=False):
+        '''Update color &of text every "n" frames per second(1000fps)'''
+        # self.counter += 1
+        # if self.counter >= 10: #every frame in 1000
+        #     self.counter = 0
+        #     self.color0 = random.randrange(100, 255)
+        #     self.color1 = random.randrange(100, 255)
+        #     self.color2 = random.randrange(100, 255)
+        if colorized:
+            texto = font.render(text, True, self.colorize())
+        else:
+            # texto = font.render(f'Color {self.counter:.0f}', True, (self.color0, self.color1, self.color2))
+            texto = font.render(text, True, (255,255,255))
+        screen.blit(texto, [W//2-120, H//2-100])
+
+#Movimiento Bounce :)
+moving = [0, False]
+def bounce(limit_a, limit_b, speed):
+    '''Rebote de limite lineal, control de tiempo-espacio'''
+    if moving[0] < limit_a and moving[1] == True:
+        moving[0] += speed
+        if moving[0] >= limit_b:
+            moving[1] = False
+    elif moving[1] == False and moving[0] <= limit_b:
+        moving[0] -= speed
+        if moving[0] <= -limit_a:
+            moving[1] = True
+    return moving[0]
+
+def random_pixel_color(surface):
+    rand_col = (randint(0, 255), randint(0, 255), randint(0, 255))
+    rand_col_ = (randint(0, 255), randint(0, 255), randint(0, 255))
+    
+    for _ in range(1000):
+        rand_pos = (randint(0, W-1), randint(0, H-1))
+        rand_pos2 = (randint(0, W-1), randint(0, H-1))
+        surface.set_at(rand_pos, rand_col)
+        surface.set_at(rand_pos2, rand_col_)
+
+
+class CubeRotate:
+    def __init__(self):
+        '''Instancea la clase para rotar un cubo'''
+        self.surf_cube = pygame.Surface((100, 100), flags=SRCALPHA)
+        self.surf_cube.fill(('green'))
+        #Se hace copia, rect y se trabaja con ellos.
+        self.rot_cube = self.surf_cube
+        self.rect_cube = self.surf_cube.get_rect()
+        
+        self.angle = 0
+
+    def cube(self, color, size):
+        self.surf_cube = pygame.Surface((size), flags=SRCALPHA)
+        self.surf_cube.fill((color))
+        
+    def rotate(self, color, rect, surface, debug=0):
+        '''Rota el cubo
+        color:
+            Define al color del cubo
+        surface:
+            Establece la superficie donde el cubo rotara
+        debug:
+            En True muestra la posicion de renderizado y angulo de del cubo
+        '''
+        self.cube(color, [rect[0], rect[1]])
+        mouse_pos = pygame.mouse.get_pos()
+        self.angle += 5
+        if self.angle > 360:
+            self.angle = 0
+        
+        self.rot_cube = pygame.transform.rotate(self.surf_cube, self.angle)
+        rect = self.rot_cube.get_rect(center=(0,0))
+        surface.blit(self.rot_cube, [rect[2], rect[3]])
+
+        if debug:
+            print(f'Angle {self.angle} | mouse_pos: {mouse_pos}')
+
+class Masking:
+    def __init__(self, mask_size, position=False, debug=False):
+        '''Generar la superficie mascara a un tamanio especifico'''
+        self.mask_surf = pygame.Surface(mask_size, pygame.HWSURFACE)
+        self.mask_size = mask_size
+        if position:
+            self.mask_rect = self.mask_surf.get_rect(position)
+        else:
+            self.mask_rect = self.mask_surf.get_rect()
+
+        self.mask_surf.set_colorkey((0, 0, 0))
+
+        self.debug = debug
+
+
+    def draw(self, surface, mask_pos=[0,0], dest=[0,0], dest_offset=[0,0], area=None):
+        '''Dibuja la mascara en la superficie
+        
+        '''
+        relative_position = [-mask_pos[0], -mask_pos[1]]
+
+        # self.mask_rect.x = mask_pos[0]; self.mask_rect.y = mask_pos[1]
+        
+        enmascarada = surface.copy()
+        # Modify ofset?
+        enmascarada.blit(self.mask_surf, (dest[0]+dest_offset[0], dest[1]+dest_offset[1]), area, pygame.BLEND_ALPHA_SDL2)
+        
+        self.mask_rect.x = dest[0]+dest_offset[0]
+        self.mask_rect.y = dest[1]+dest_offset[1]
+        self.mask_rect.w = self.mask_size[0]
+        self.mask_rect.h = self.mask_size[1]
+        
+        surface.blit(enmascarada, (mask_pos))
+
+        # Muestra el contorno de la mascara.
+        if self.debug:
+            pygame.draw.rect(screen, 'black', (dest,
+                        [self.mask_rect.w, self.mask_rect.h]), 1)
+
+        ## IMPORTANT NOTE: Recuerda establecer el rect de la mascara en el contexto donde se dibuja, no es posible aqui.
+        

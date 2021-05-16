@@ -2,23 +2,25 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-from pygame import examples
-import os
-import sys
-import time
+from pygame import display
+# from pygame import examples
+# import os
+# import sys
+# import time
 from pygame.locals import *
-from datetime import datetime
+# from datetime import datetime
 import json
+
+from pygame.surface import Surface
 
 
 from libs.pygamextras import *
-from libs.player import Player, Badges
-from libs.stores import Stores, StoreBg
+from libs.player import Player
+# from libs.stores import Stores, StoreBg
 from libs.bg_ui_elements import Background, Stats, UserInterface
 from libs.menus import Menu
 from libs.particles import ParticlesPrinciple
 # from libs.dialogues import DialogueBox
-
 
 
 import pprint
@@ -42,7 +44,7 @@ import pprint
 
     Sistema de logros!!!
 
-    ✔ Sistema de movimiento
+    ✔ Sistema de movimiento 🏃‍♂️
     
     ✔ Sistema de efectos - particulas
         Quiza lo tenga cada objeto...
@@ -88,6 +90,8 @@ import pprint
         pf tempesta seven
         retroville
         retrogaming
+
+    Usare PyGameGUI
 
 """
 
@@ -243,8 +247,8 @@ def main_menu():
         pygame.display.set_caption("Local Market » " + str(tnow[0]))
         # pygame.display.update()
         clock.tick(fps)
-    
-    
+
+
 # ############################################################################
 # Loop Principal
 # ############################################################################
@@ -253,7 +257,7 @@ def main_game():
     """Función principal del juego"""
 
     # Guardar posicion
-    global tnow, mx, my, t0, str_time, stats, badge
+    global tnow, mx, my, t0, str_time, stats, badge, time_delta
 
     contador = 0
     moving = False
@@ -261,13 +265,16 @@ def main_game():
     der = 0  # Restableciendo el movimiento.
     
     #Cargando sistema de dialogos?
+    
+    #Carga los tile con anterioridad...
+    bg.tiles()
 
     while running:
         screen.fill('black')
         # Renderizar el piso
-        background.update(screen, (player.bg[0], player.bg[1]))
-        background.tiles((player.bg[0], player.bg[1]))
-        
+        bg.update(screen, (player.bg[0], player.bg[1]))
+
+        time_delta = clock.tick(60)/1000.0
 
         # dialogue = DialogueBox()
 
@@ -280,10 +287,12 @@ def main_game():
 
         for event in pygame.event.get():
             # Enviando eventos a dialogue
-            store.get_event(event)
-            store2.get_event(event)
-            player.get_event(event)
 
+            # Creando loop de mapa stores
+            for store in bg.list_store:
+                store.get_event(event)
+            # store2.get_event(event)
+            # player.get_event(event)
             if event.type == QUIT:
                 quit()
             if event.type == KEYDOWN:
@@ -295,18 +304,20 @@ def main_game():
                     # with open('storevars.json',"w") as f:
                     #     json.dump(stores_vars, f, indent=4, sort_keys=True)
                     print('guardando savegame...')
-                    with open('savegame.json', "w") as f:
+                    with open('/home/restor/Documents/game-develop/mk2/savegame.json', "w") as f:
                         game_dump = []
                         game_dump.append('Player vars')
                         game_dump.append(player.vars)
                         game_dump.append('Player items')
-                        game_dump.append(player.item_list)
-                        
-                        # game_dump.append(player.exis)
-                        game_dump.append('Store 1 vars')
-                        game_dump.append(store2.vars)
-                        game_dump.append('Store 2 vars')
-                        game_dump.append(store.vars)
+                        game_dump.append(player.items.item_list)
+
+                        for store in bg.list_store:
+                            # game_dump.append(player.exis)
+                            game_dump.append(f'Store {id(store)} vars')
+                            # game_dump.append(store2.vars)
+                            # game_dump.append('Store 2 vars')
+                            game_dump.append(store.vars)
+                            game_dump.append(store.items.item_list)
 
                         json.dump(game_dump, f, indent=4, sort_keys=True)
 
@@ -364,18 +375,19 @@ def main_game():
             #     elif event.button == 5:
             #         contador += 1
             #         print('atras' + str(contador))
-                    
+
             if event.type == MOUSEBUTTONDOWN and key_press["F4_key"]:
                 if player.rect.collidepoint(event.pos):
                     print('player')
                     moving = True
                 if store.rect.collidepoint(event.pos):
-                    moving = True
-                    print('shop')
-                if store2.rect.collidepoint(event.pos):
-                    moving = True
-                    print('shop2')
-                
+                    for store in bg.list_store:
+                        moving = True
+                        print('shop')
+                # if store2.rect.collidepoint(event.pos):
+                #     moving = True
+                #     print('shop2')
+
             if event.type == MOUSEBUTTONUP and key_press["F4_key"]:
                 moving = False
             elif event.type == MOUSEMOTION and moving and key_press["F4_key"]:
@@ -392,71 +404,99 @@ def main_game():
                         player.vars['last_dir'] = 'up'
                     # interaction(player.rect)
                 elif store.rect.collidepoint(event.pos):
-                    store.control(event.rel[0],event.rel[1])
-                    store_bg.control(event.rel[0],event.rel[1])
-                elif store2.rect.collidepoint(event.pos): 
-                    store2.control(event.rel[0],event.rel[1])
-                    store_bg2.control(event.rel[0],event.rel[1])
+                    for store in bg.list_store:
+                        store.control(event.rel[0],event.rel[1])
+                    for store_bg in bg.list_store_bg:
+                        store_bg.control(event.rel[0],event.rel[1])
+                # elif store2.rect.collidepoint(event.pos): 
+                #     store2.control(event.rel[0],event.rel[1])
+                #     store_bg2.control(event.rel[0],event.rel[1])
                 # print(event.rel)
 
 
             # Iniciando el evento particulas
             if event.type == PARTICLE_EVENT:
                 particle1.add_particles([player.rect.x, player.rect.y])
-            
+
+            #Eventos de gui
+            ui_manager.process_events(event)
 
 
         if key_press['F4_key']:
-            store.interaction()
-            store_bg.interaction()
+            for store in bg.list_store:
+                store.interaction()
+            for store_bg in bg.list_store_bg:
+                store_bg.interaction()
 
-            store2.interaction()
-            store_bg2.interaction()
-            
+            # store2.interaction()
+            # store_bg2.interaction()
+
             player.interaction()
             # Desactivar particulas
             # particle1.emit()
             run_time()
 
-        #Colisiones checar esta declaracion...
-        # Importante con el uso de las mecanicas y los sprites....
-        # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
-        colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
-        colliderect2 = pygame.Rect.colliderect(player.rect, store_bg2.rect)
-        if colliderect:
-            # if badge == 'exclamation':
-            #     player.interaction(badge)
-            # else:
-            store.interaction()
-            player.interaction(badge.drawbadge())
-        elif colliderect2:
+        # Checar posision y desplazamiento...
+        # for x, store in enumerate(bg.list_store):
+        #     for y, imp in enumerate(bg.list_imp):
+        #         store.rect.x = (x*128)+imp[0]
+        #         store.rect.y = (y*128)+imp[1]
+        #         print(imp, store.rect)
+        
+        # print(player.bg)
+        for store_bg in bg.list_store_bg:
+            #Colisiones checar esta declaracion...
+            # Importante con el uso de las mecanicas y los sprites....
+            # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
+            colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
+            # colliderect2 = pygame.Rect.colliderect(player.rect, store_bg2.rect)
+            if colliderect:
+                # if badge == 'exclamation':
+                #     player.interaction(badge)
+                # else:
+                # for store in bg.list_store:
+                store.interaction()
+                player.interaction(badge.drawbadge())
+            # elif colliderect2:
 
-            store2.interaction()
-            player.interaction(badge.drawbadge())
-            
+            #     # store2.interaction()
+            #     player.interaction(badge.drawbadge())
 
-        elif not colliderect:
-            # Reiniciando el contador aleatorio.
-            badge = ActionBadges()
-            # audio_effect('menu', 0.5)
+
+            elif not colliderect:
+                # Reiniciando el contador aleatorio.
+                badge = ActionBadges()
+                # audio_effect('menu', 0.5)
 
         # store.update(store.control(player.bg[0], player.bg[1]))
         # store2.update(store2.control(player.bg[0], player.bg[1]))
         # renderizar las tiendas
-        store_group.update()
-        store_group.draw(screen)
+        
+        bg.store_group.update()
+        bg.store_group.draw(screen)
 
         # renderizar jugador
         player_group.update()
         player_group.draw(screen)
 
+        # def movement():
+        #     movex = store.rect.x + player.bg[0]
+        #     movey = store.rect.y + player.bg[1]
+        #     pos = [movex, movey]
+        #     store.rect.move_ip(movex, movey)
+        #     return pos
+
+
+
+        # #crear efecto dia noche...
+        # daynight = pygame.Surface([W, H], pygame.SRCALPHA, 32)
+        # daynight.set_colorkey('white')
+        # daynight = daynight.convert_alpha()
 
         # Abrir menu items
         if key_press["TAB_key"]:
             menu.show()
-        
-        
-        
+
 
         # number = 3
         # for x in range(number):
@@ -481,7 +521,7 @@ if __name__ == '__main__':
     # ############################################################################
     # pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
     
-    pygame.init()
+    # pygame.init()
     # screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
     pygame.display.set_caption("Local Market ")
     
@@ -490,30 +530,15 @@ if __name__ == '__main__':
     
     fps = 60.0
     font = pygame.font.SysFont('comicoro', 12)
-    # Tiempo, horas etc.
-    clock = pygame.time.Clock()
+    
 
     count = None  # Global
     playtime_total = None  # Global
 
 
-    background = Background()
+    bg = Background()
     menu = Menu()
 
-    # Cargando el fondo de la tienda
-    #Cargando la tienda
-    store = Stores([200,200])
-    store_bg = StoreBg([store.rect.x, store.rect.y])
-
-    store2 = Stores([400,400])
-    store_bg2 = StoreBg([store2.rect.x, store2.rect.y])
-    # Loading background, please pos before the background
-    
-    store_group = pygame.sprite.Group(store)
-    store_group.add(store_bg)
-    store_group.add(store2)
-    store_group.add(store_bg2)
-    # store_collider = pygame.sprite.Group(store.collide_rect)
     
     player = Player(character=character_selected(), speed=6)
     # player_collider = pygame.sprite.Group(player.collide_rect)
@@ -530,7 +555,6 @@ if __name__ == '__main__':
     
     PARTICLE_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(PARTICLE_EVENT, 25)
-
 
     audio_effect('start')
     main_menu()

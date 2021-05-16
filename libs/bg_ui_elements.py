@@ -1,8 +1,9 @@
-from .pygamextras import *
 # from .player import Player
 import pygame
 from pygame.locals import *
+from .pygamextras import *
 from random import randrange
+from .stores import Stores, StoreBg
 
 
 class Background:
@@ -21,16 +22,37 @@ class Background:
         self.sprites = []
         self.sprites.append(self.image.subsurface(0, 0, 128, 128))
 
+
+
+        self.store_group = pygame.sprite.Group()
+        self.list_store = {}
+        self.pos = [0,0]
+        self.list_imp = []
+        self.list_store_bg = []
+        
+
         # Iniciando el renderizado
 
     def update(self, surf, pos=[0, 0]):
 
-        surf.blit(self.image, (-512+pos[0], 0+pos[1]))
-        surf.blit(self.image, (-512+pos[0], 512+pos[1]))
-        surf.blit(self.image, (0+pos[0], 0+pos[1]))
-        surf.blit(self.image, (512+pos[0], 0+pos[1]))
-        surf.blit(self.image, (0+pos[0], 512+pos[1]))
-        surf.blit(self.image, (512+pos[0], 512+pos[1]))
+
+        tile_bg = pygame.image.load("/home/restor/Documents/game-develop/Python manuals/background_road.png").convert_alpha()
+        # mask = pygame.image.load("/home/restor/Documents/game-develop/Python manuals/mask.png").convert_alpha()
+
+        tw = tile_bg.get_width()
+        th = tile_bg.get_height()
+
+        background = pygame.Surface((W, H))
+        for py in range(0, int(H//th) + 2):
+            for px in range(0, int(W//tw) + 2):
+                surf.blit(tile_bg, (px*(tw-1)+pos[0], py*(th-1)+pos[1]))
+
+        # surf.blit(self.image, (-512+pos[0], 0+pos[1]))
+        # surf.blit(self.image, (-512+pos[0], 512+pos[1]))
+        # surf.blit(self.image, (0+pos[0], 0+pos[1]))
+        # surf.blit(self.image, (512+pos[0], 0+pos[1]))
+        # surf.blit(self.image, (0+pos[0], 512+pos[1]))
+        # surf.blit(self.image, (512+pos[0], 512+pos[1]))
         # tw = self.tile_bg.get_width()
         # th = self.tile_bg.get_height()
         # backgroundsurf.blit = pygame.Surface((W, H))
@@ -38,6 +60,7 @@ class Background:
         #     for px in range(0, W//tw + 2):
         #         background.blit(self.tile_bg, (px*(tw-1), py*(th-1)))
 
+        
         if key_press['F4_key']:
             mouse = pygame.mouse.get_pressed()
             mousepos = pygame.mouse.get_pos()
@@ -55,7 +78,7 @@ class Background:
         # screen.blit(background, (512,1024))
         # screen.blit(background, (1024,0))
 
-    def tiles(posone=[0, 0], colorized=False):
+    def tiles(self, posone=[0, 0], colorized=False):
         '''Corregir bien este metodo
 
         Multiplos de 128 hacia abajo
@@ -88,13 +111,13 @@ class Background:
         ----------
 
         Window
-        xxxxxxxxxx
-        x   xx   x
-        x   xx   x
-        x   xx   x
-        x   xx   x
-        x   xx   x
-        xxxxxxxxxx
+xxxxxxxxxx
+x   xx   x
+x   xx   x
+x   xx   x
+x   xx   x
+x   xx   x
+xxxxxxxxxx
         ----------
 
         Noting
@@ -128,9 +151,9 @@ x     x
           
           
 '''
-        map_gral = """          
-          
-x     x   
+        map_gral = """  x       
+    x     
+x x   x   
           
           
           
@@ -144,22 +167,34 @@ x     x
         # print("-"*10)
         # print(posone[1])
 
-        # Asignado atributos del renderizado
-        tile_floor = pygame.image.load(asset('assets/img', 'floor.png'))
-        tile_store = pygame.image.load(asset('assets/img', 'store_only.png'))
-        tile_bg = pygame.image.load(asset('assets/img', 'background_road.png'))
+        # # Asignado atributos del renderizado
+        # tile_floor = pygame.image.load(asset('assets/img', 'floor.png'))
+        # tile_store = pygame.image.load(asset('assets/img', 'store_only.png'))
+        # tile_bg = pygame.image.load(asset('assets/img', 'background_road.png'))
 
         # def tiles(map0, colorized=None):
         # global tile_floor, tile_store
+        # self.list_store = []
         for y, line in enumerate(map_gral):
             for x, c in enumerate(line):
                 # print(pos[0])
                 # if c in (" ", "x"):
                 #     screen.blit(tile_bg, ((x*128), (y*128)))
                 if c == "x":
-                    screen.blit(tile_floor, (x*128, (y*128)+108))
-                    screen.blit(tile_store, (x*128, y*128))
 
+                    imp = ([x*128+posone[0], (y*128)+posone[1]])
+                    store = Stores([x*128+posone[0], (y*128)+posone[1]])
+                    store_bg = StoreBg([store.rect.x, store.rect.y])
+                    self.store_group.add(store)
+                    self.store_group.add(store_bg)
+
+                    
+                    # screen.blit(tile_floor, (x*128+posone[0], (y*128)+108+posone[1]))
+
+                    # screen.blit(tile_store, (x*128+posone[0], y*128+posone[1]))
+                    
+
+                    # Dibujar en los puntos marcados
                     if colorized==True:
                         if x == 0 or y == 0:
                             if 0 == y and x == 0:
@@ -174,6 +209,21 @@ x     x
                         elif not 0 in (x, y):
                             pygame.draw.rect(
                                 screen, colorized, ([x*128, y*128], [128, 128]), 1, 75)
+
+                    #Guardando las tiendas
+                    # self.list_store["store"].append(imp)
+                    # self.list_store.append(store)
+                    # self.list_store_bg.append(store_bg)
+
+                    # print(f'Mostrando {id(store)} {store.rect}')
+                    # print(f'{ipm} indivdual pos store.')
+
+                    
+
+        # self.list_store()
+
+    # def list_store(self):
+    #     for obj in self.list_store:
 
     def draw_(self):
         pass
@@ -322,6 +372,7 @@ class Badges(pygame.sprite.Sprite):
         if self.deg > 360:
             self.deg = 0
         self.image = pygame.transform.rotate(self.image, self.deg)
+        pygame.draw.rect(screen, 'blue', self.rect, 1)
 
 
 

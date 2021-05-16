@@ -1,20 +1,22 @@
+from datetime import timedelta
+from typing import List, Tuple
 import pygame
 from pygame.locals import *
 import random
 from .pygamextras import *
-from .stores import Stores
 from .items import Items
 from .bg_ui_elements import Badges
-from .events import Events
 
 
-class Player(pygame.sprite.Sprite, Items, Masking, Events):
+
+class Player(pygame.sprite.Sprite, Masking):
     def __init__(self, location=[W//2, H//2], speed=3, surface=screen, W=W, H=H, character='naranjas'):
-        pygame.sprite.Sprite.__init__(self)
-        Items.__init__(self)
-        Masking.__init__(self, [0,0])
-        Events.__init__(self)
+        # self.items = Items()
         
+        pygame.sprite.Sprite.__init__(self)
+        Masking.__init__(self, [0,0])
+
+        self.slide_y = 0
 
         self.W, self.H = W, H
         self.image = pygame.image.load(asset('assets/img', 'player-anim.png'))
@@ -42,7 +44,6 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  # Stay_L1
             self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  # Walk_L0
             self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  # Walk_L1
-
         elif self.character in ('blue', 'azul'):
             # Personaje azul
             self.sprites.append(self.image.subsurface(0, 64, 32, 64))    
@@ -57,11 +58,10 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.sprites.append(self.image.subsurface(160, 64, 32, 64))  
             self.sprites.append(self.image.subsurface(192, 64, 32, 64))  
             self.sprites.append(self.image.subsurface(224, 64, 32, 64))  
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
-
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
         elif self.character in ('red', 'rojo'):
             # Personaje rojo
             self.sprites.append(self.image.subsurface(0, 128, 32, 64))    
@@ -76,11 +76,10 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.sprites.append(self.image.subsurface(160, 128, 32, 64))  
             self.sprites.append(self.image.subsurface(192, 128, 32, 64))  
             self.sprites.append(self.image.subsurface(224, 128, 32, 64))  
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
-
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
         elif self.character in ('orange', 'nanaranjas'):
             # Personaje naranja
             self.sprites.append(self.image.subsurface(0, 192, 32, 64))    
@@ -95,14 +94,18 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.sprites.append(self.image.subsurface(160, 192, 32, 64))  
             self.sprites.append(self.image.subsurface(192, 192, 32, 64))  
             self.sprites.append(self.image.subsurface(224, 192, 32, 64))  
-            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  
-            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  
+            self.sprites.append(pygame.transform.flip(self.sprites[0], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))
+            self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
 
         self.surface = surface
         self.rect = Rect(location[0], location[1], 32, 64)  # self.image.get_rect()
         self.collide_rect = Rect(self.rect.midleft[0],self.rect.midleft[1], 32, 32)
+
+
+        self.items = Items()
+
 
         # Creando la interfas del personaje
         self.badge = Badges()
@@ -123,12 +126,14 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
         # Cargando el sprite.
         self.spritesheet = self.sprites
 
+
     def control(self, x, y):
         """
         control player movement
         """
         self.movex += x
         self.movey += y
+
 
     def badge_draw(self, badge):
         '''Creando el "grupo de sprites" dentro del Player sprite
@@ -140,7 +145,94 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             # badge, self.rect.midtop[0]+8, self.rect.midtop[1]-16)
         badge_group.draw(self.surface)
 
+
+    def interaction(self, badge_state='exclamation'):
+
+        if key_press['F4_key']:
+            pygame.draw.rect(self.surface, 'red',
+                                (self.rect.x, self.rect.y, 32, 64), 1)
+            
+            # Cargando el sprite desde ActionBadges
+            posplayer = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
+
+        # Badges loader
+        self.badge_draw(badge_state)
+        
+        self.dialogue_box()
+
+
+    def dialogue_box(self, size=[250,100]):
+        # Render mask ##########################
+        mask = Masking(size)
+
+        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
+        pygame.draw.rect(mask.mask_surf, 'gray75', (0, 0, size[0], size[1]), 0)
+        
+        # self.items.draw_items(mask.mask_rect, mask.mask_surf)
+        newline_space = 15
+        items_number = len(self.items.item_list)
+
+        self.items_height = (newline_space*items_number)-newline_space*2
+
+
+        # Renderizado desde Items
+        for item in self.items.item_list:
+            item['name'] = item['name'].replace("_", " ")
+
+            mont = item['cost'] * item['quantity']
+            itemx = TExtra(
+                f'{item["quantity"]}, {item["name"]} ${mont}',
+                ([mask.mask_rect.x + 5,
+                mask.mask_rect.y + (item["id"] * newline_space + self.slide_y)]),
+                'black', surface=mask.mask_surf)
+
+
+
+        tit_dialog = TExtra('Player - Items', [5,0], bgcolor='gray50', surface=mask.mask_surf)
+        #texto de ejemplo para poner texto
+        
+        mask.draw(screen, (0,0), (self.rect.topright), (-size[0]-32, -size[1]))
+
+        
+        # Se debe establecer la posicion de mask_rect en el contexto/ambito 
+        self.mask_rect.x = self.rect[0]-size[0]
+        self.mask_rect.y = self.rect[1]-size[1]
+
+        self.mask_rect.w = size[0]
+        self.mask_rect.h = size[1]
+        # self.mask_rect = self.rect
+        pygame.draw.rect(screen, 'black', (
+            self.mask_rect.x,
+            self.mask_rect.y,
+            self.mask_rect.w,
+            self.mask_rect.h), 1)
+        
+
+        # pygame.draw.rect(screen, 'blueviolet', btn_plus, 1)
+        # pygame.draw.rect(screen, 'blueviolet', btn_minus, 1)
+        
+        # Render mask ##########################
+
+        # print(self.rect, self.mask_rect)
+
+
+    def get_event(self, event):
+        # Es mas recomendable utilizar
+        # pygame.event.pump()
+        # print(self.mask_rect)
     
+        ''' Mecanismo de movimiento con el scroll/rueda del raton
+        '''
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4 and self.mask_rect.collidepoint(event.pos):
+                if self.slide_y > -self.items.items_height:
+                    self.slide_y -= 10
+                # print('arriba')
+            elif event.button == 5 and self.mask_rect.collidepoint(event.pos):
+                if self.slide_y < 10:
+                    self.slide_y += 10
+                # print('abajo')
+
 
 
     # implementar este metodo para reducir codigo en update
@@ -148,6 +240,7 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
         self.sprites = self.spritesheet
         self.sprites = self.sprites[val_a:val_b]
         return self.sprites
+
 
     def update(self):
         '''Actualiza el sprite con las mecanicas genrrales del player
@@ -161,7 +254,7 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
 
 
         if self.vars['down']:
-            if not self.rect.y + self.rect.height > self.H-(self.H//10):
+            if not self.rect.y + self.rect.height > self.H-(self.H//5):
                 self.player_down()
                 self.control(y=self.speed, x=0)
                 self.select_sub_sprite(6, 8)
@@ -175,7 +268,7 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.select_sub_sprite(4, 6)
 
         if self.vars['right']:
-            if not self.rect.x + self.rect.width > self.W-(self.W//10):
+            if not self.rect.x + self.rect.width > self.W-(self.W//5):
                 self.vars['last_dir'] = 'right'
                 self.control(y=0, x=self.speed)
                 self.select_sub_sprite(2, 4)
@@ -188,7 +281,7 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.select_sub_sprite(0, 2)
 
         if self.vars['up']:
-            if not self.rect.y < 0+(self.H//8):
+            if not self.rect.y < 0+(self.H//5):
                 self.vars['last_dir'] = 'up'
                 self.control(y=-self.speed, x=0)
                 self.select_sub_sprite(10, 12)
@@ -201,7 +294,7 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
             self.select_sub_sprite(8, 10)
 
         if self.vars['left']:
-            if not self.rect.x < 0+(self.W//10):
+            if not self.rect.x < 0+(self.W//5):
                 self.vars['last_dir'] = 'left'
                 self.control(y=0, x=-self.speed)
                 self.select_sub_sprite(14, 16)
@@ -228,64 +321,6 @@ class Player(pygame.sprite.Sprite, Items, Masking, Events):
         # si es entero cambiar frame
         self.image = self.sprites[int(self.current_sprite)-1]
 
-    def gui_draw(self):
-        """Muestra el simbolo de la interfaz correspondiente
-        Ejemplos:
-        Pregunta ?
-        Admiracion !
-        """
-        pygame.sprite.Sprite.__init__(self)
-        pass
-    
-    def interaction(self, badge_state='exclamation'):
-        if key_press['F4_key']:
-            pygame.draw.rect(self.surface, 'red',
-                                (self.rect.x, self.rect.y, 32, 64), 1)
-            
-            # Cargando el sprite desde ActionBadges
-            posplayer = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
-
-        # Badges loader
-        self.badge_draw(badge_state)
-        # explicit... 
-        self.dialogue_box()
-
-    def dialogue_box(self, size=[250,100]):
-        # Render mask ##########################
-        mask = Masking(size)
-
-        # self.cube.rotate('gold', [50,50, (100,10)0], mask.mask_surf)
-        # Fondo cuadro dialogo
-        pygame.draw.rect(mask.mask_surf, 'gray75', (0, 0, size[0], size[1]), 0)
-        
-        #Renderizado desde items
-        self.gen_items(mask.mask_rect, mask.mask_surf)
-
-        tit_dialog = TExtra('Tienda X - Items', [5,0], bgcolor='gray50', surface=mask.mask_surf)
-        #texto de ejemplo para poner texto
-        # textra('Hola!!!', [mask.mask_rect.x+5, mask.mask_rect.y+15+self.slide_y], surface=mask.mask_surf)
-
-        # mask_player_pos = self.image.get_rect(top=-282,left=-64)
-        mask.draw(screen, (0,0), (self.rect.topright), (-size[0]-32, -size[1]))
-        # mask.draw(screen, (0,0), (mask_player_pos))
-
-
-        # Se debe establecer la posicion de mask_rect en el contexto/ambito 
-        self.mask_rect.x = self.rect[0]-size[0]
-        self.mask_rect.y = self.rect[1]-size[1]
-
-        self.mask_rect.w = size[0]
-        self.mask_rect.h = size[1]
-        # self.mask_rect = self.rect
-        pygame.draw.rect(screen, 'black', (
-            self.mask_rect.x,
-            self.mask_rect.y,
-            self.mask_rect.w,
-            self.mask_rect.h), 1)
-
-        # Render mask ##########################
-
-        # print(self.rect, self.mask_rect)
 
     def player_up(self):
         self.vars['last_dir'] = 'up'

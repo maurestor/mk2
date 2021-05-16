@@ -2,25 +2,32 @@
 # -*- coding:utf-8 -*-
 # 
 
-import pygame
+import pygame, pygame_gui
 from pygame.locals import *
 import time
 from datetime import datetime
 import os, random, sys, math
 from random import randrange, randint
 
-
+pygame.init()
 W, H = 1280//1.5, 960//1.5
 os.environ['SDL_VIDEO_WINDOW_POS'] = f"{0},{0}"
 screen = pygame.display.set_mode((int(W), int(H)), flags=HWACCEL|RESIZABLE|DOUBLEBUF|NOFRAME)
 mx, my = 0, 0
+
+#inverse_player_movement
+# IMP = [0,0]
 
 t0 = time.time()
 tnow = [0, True]
 tfull = 720
 hora_real = 0
 vday = 0.0
+# Tiempo, horas etc.
+clock = pygame.time.Clock()
 
+# Agregando Pygame_GUI
+ui_manager = pygame_gui.UIManager((W, H), '/home/restor/Documents/game-develop/mk2/theme.json')
 
 # Declaración de constantes y variables
 str_time = {'hora': 60, 'seg': 0, 'dia': 0, 'tick': 3141569, 'start': 'start', 'moment_time': '?' }
@@ -389,13 +396,14 @@ class CubeRotate:
         if debug:
             print(f'Angle {self.angle} | mouse_pos: {mouse_pos}')
 
+
 class Masking:
     def __init__(self, mask_size, position=False, debug=False):
         '''Generar la superficie mascara a un tamanio especifico'''
-        self.mask_surf = pygame.Surface(mask_size, pygame.HWSURFACE)
+        self.mask_surf = pygame.Surface(mask_size)
         self.mask_size = mask_size
         if position:
-            self.mask_rect = self.mask_surf.get_rect(position)
+            self.mask_rect = self.mask_surf.get_rect(topleft=position)
         else:
             self.mask_rect = self.mask_surf.get_rect()
 
@@ -406,22 +414,25 @@ class Masking:
 
     def draw(self, surface, mask_pos=[0,0], dest=[0,0], dest_offset=[0,0], area=None):
         '''Dibuja la mascara en la superficie
-        
+
         '''
         relative_position = [-mask_pos[0], -mask_pos[1]]
 
         # self.mask_rect.x = mask_pos[0]; self.mask_rect.y = mask_pos[1]
-        
-        enmascarada = surface.copy()
+
+        mascara = surface.copy()
         # Modify ofset?
-        enmascarada.blit(self.mask_surf, (dest[0]+dest_offset[0], dest[1]+dest_offset[1]), area, pygame.BLEND_ALPHA_SDL2)
+
+        # print(mascara_rect)
+
+        mascara.blit(self.mask_surf, (dest[0]+dest_offset[0], dest[1]+dest_offset[1]), (0, 0, 250, 100), pygame.BLEND_ALPHA_SDL2)
         
         self.mask_rect.x = dest[0]+dest_offset[0]
         self.mask_rect.y = dest[1]+dest_offset[1]
         self.mask_rect.w = self.mask_size[0]
         self.mask_rect.h = self.mask_size[1]
         
-        surface.blit(enmascarada, (mask_pos))
+        surface.blit(mascara, (mask_pos))
 
         # Muestra el contorno de la mascara.
         if self.debug:
@@ -429,4 +440,3 @@ class Masking:
                         [self.mask_rect.w, self.mask_rect.h]), 1)
 
         ## IMPORTANT NOTE: Recuerda establecer el rect de la mascara en el contexto donde se dibuja, no es posible aqui.
-        

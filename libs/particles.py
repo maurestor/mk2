@@ -6,6 +6,7 @@ from .player import Player
 class ParticlesPrinciple:
     def __init__(self):
         self.particles = []
+        self.c = TextColors()
         
     def emit(self, pos=[]):
         # pass #Mueve y dibuja la particulongas
@@ -22,11 +23,11 @@ class ParticlesPrinciple:
                 #shrink
                 particle[1] -= random.randrange(10, 100)/100
                 #draw a circe arround the particle
-                pygame.draw.circle(screen,'gold', particle[0], int(particle[1]))
+                pygame.draw.circle(screen, self.c.colorize(50, 255), particle[0], int(particle[1]))
     
     def add_particles(self, pos=[]):
-        pos_x = pos[0]
-        pos_y = pos[1]
+        pos_x = pos[0]+16
+        pos_y = pos[1]+64
 
         radius = random.randrange(2, 10)
         direction_x = random.randrange(-5, 5)

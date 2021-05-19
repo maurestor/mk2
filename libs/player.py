@@ -1,30 +1,43 @@
 from datetime import timedelta
 from typing import List, Tuple
 import pygame
+from pygame.draw import rect
 from pygame.locals import *
 import random
 from .pygamextras import *
 from .items import Items
 from .bg_ui_elements import Badges
 
+class YAwareGroup(pygame.sprite.Group):
+    def by_y(self, spr):
+        return spr.pos.y
 
+    def draw(self, surface):
+        sprites = self.sprites()
+        surface_blit = surface.blit
+        for spr in sorted(sprites, key=self.by_y):
+            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+        self.lostsprites = []
+        print(self.by_y)
 
-class Player(pygame.sprite.Sprite, Masking):
-    def __init__(self, location=[W//2, H//2], speed=3, surface=screen, W=W, H=H, character='naranjas'):
-        # self.items = Items()
-        
-        pygame.sprite.Sprite.__init__(self)
-        Masking.__init__(self, [0,0])
-
-        self.slide_y = 0
-
+class Actor(pygame.sprite.Sprite):
+    def __init__(self, image, pos=(200,200), surface=screen):
+        super().__init__()
+        self.colors = TextColors()
+        self.image = image
+        self.pos = pygame.Vector2(pos)
+        # self.rect = self.image.get_rect(center=self.pos)
+        self.rect = Rect(pos[0], pos[1], 32, 64)  # self.image.get_rect()
         self.W, self.H = W, H
-        self.image = pygame.image.load(asset('assets/img', 'player-anim.png'))
-        self.movex = location[0]
-        self.movey = location[1]
+        # self.image = pygame.image.load(asset('assets/img', 'player-anim.png'))
+        self.movex = pos[0]
+        self.movey = pos[1]
+
+        self.current_sprite = 1  # constante de velocidad = 1000
+        self.aleatorio = random.randrange(500, 999)
 
         self.sprites = []
-        self.character = character
+        self.character = character_selected()
 
         if self.character in ('green', 'verde'):
             # Personaje Verde
@@ -100,10 +113,39 @@ class Player(pygame.sprite.Sprite, Masking):
             self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
 
         self.surface = surface
-        self.rect = Rect(location[0], location[1], 32, 64)  # self.image.get_rect()
+        
         self.collide_rect = Rect(self.rect.midleft[0],self.rect.midleft[1], 32, 32)
 
+        # Cargando el sprite.
+        self.spritesheet = self.sprites
 
+    def update(self):
+
+        self.rect.x = self.movex
+        self.rect.y = self.movey
+        self.vars['location'][0] = self.rect.x
+        self.vars['location'][1] = self.rect.y
+
+       
+
+        # Constante de velocidad...
+        # aumente # de frames entre cada FPS
+        self.current_sprite += self.aleatorio/10000
+
+        if self.current_sprite > len(self.sprites):
+            self.current_sprite = 0
+
+        # si es entero cambiar frame
+        self.image = self.sprites[int(self.current_sprite)-1]
+
+class Player(Actor, Masking):
+    def __init__(self, image, pos=[W//2, H//2], speed=3, surface=screen, W=W, H=H):
+        # self.items = Items()
+        
+        super().__init__(image, pos, surface)
+        Masking.__init__(self, [0,0])
+
+        
         self.items = Items()
 
 
@@ -113,18 +155,31 @@ class Player(pygame.sprite.Sprite, Masking):
         self.badge_rect = self.rect.bottomleft
 
         self.speed = speed
-        self.current_sprite = 1  # constante de velocidad = 1000
-        self.aleatorio = random.randrange(500, 999)
+        
 
         self.frame = 0
         self.bg = [0, 0]
 
-        self.vars = {'left': False, 'right': False, 'up': False, 'down': False,
-                     'last_dir': 'down', 'debug': False, 'location': [self.rect.x, self.rect.y]}
-        # self.exis = {'otro datos':True, 'mas entradas':{'nuevos':True, 'otro':[25, 61, 25]}}
+        # pos-rect_list_dialogues
+        self.prld = 0
+        self.prld_x = 0
+        self.prld_y = 0
+        self.rect_btn_plus = [0,0]
+        self.rect_btn_minu = [0,0]
+        self.txt_rect = Rect(0,0,0,0)
+        # self.newpos = []
+        # self.colors= TextColors()
+        self.rectn = self.rect
+        self.slide_y = 10
+        total = 0
+        items = 0
 
-        # Cargando el sprite.
-        self.spritesheet = self.sprites
+        self.vars = {'left': False, 'right': False, 'up': False, 'down': False, 'last_dir': 'down', 'debug': False, 'location': [self.rect.x, self.rect.y]}
+
+        self.vars['total_store'] = total
+        self.vars['total_items'] = items
+
+        
 
 
     def control(self, x, y):
@@ -146,74 +201,109 @@ class Player(pygame.sprite.Sprite, Masking):
         badge_group.draw(self.surface)
 
 
-    def interaction(self, badge_state='exclamation'):
+    def interaction(self):
 
         if key_press['F4_key']:
-            pygame.draw.rect(self.surface, 'red',
-                                (self.rect.x, self.rect.y, 32, 64), 1)
+            #Rect global
+            pygame.draw.rect(self.surface, 'red', (self.rect.x, self.rect.y, 32, 64), 1)
+            # colider
+            pygame.draw.rect(screen, self.colors.colorize(), self.collide_rect, 1)
             
             # Cargando el sprite desde ActionBadges
             posplayer = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'deepskyblue')
 
+
         # Badges loader
-        self.badge_draw(badge_state)
         
-        self.dialogue_box()
+        # self.dialogue_box()
 
 
     def dialogue_box(self, size=[250,100]):
         # Render mask ##########################
+        badge = ActionBadges()
+        self.badge_draw(badge.drawbadge())
+        
         mask = Masking(size)
 
-        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
-        pygame.draw.rect(mask.mask_surf, 'gray75', (0, 0, size[0], size[1]), 0)
-        
-        # self.items.draw_items(mask.mask_rect, mask.mask_surf)
         newline_space = 15
-        items_number = len(self.items.item_list)
-
+        items_number = len(self.items.list)
         self.items_height = (newline_space*items_number)-newline_space*2
 
+        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
+        mask.mask_surf.set_alpha(230)
+        pygame.draw.rect(mask.mask_surf, 'gray65', (0,0,250, 100), 0)
 
+        total = 0
+        items = 0
         # Renderizado desde Items
-        for item in self.items.item_list:
+        for item in self.items.list:
+            # colorized1 = self.colors.colorize(50, 255)
+            # colorized2 = self.colors.colorize(0, 200)
+
+            pygame.draw.rect(mask.mask_surf, 'green', (self.prld_x-39, self.prld_y, 12,12), 0, 3)
+            pygame.draw.rect(mask.mask_surf, 'chocolate1', (self.prld_x-24, self.prld_y, 12,12), 0, 3)
+            pygame.draw.rect(mask.mask_surf, 'green4', (self.prld_x-39, self.prld_y, 12,12), 2, 3)
+            pygame.draw.rect(mask.mask_surf, 'chocolate3', (self.prld_x-24, self.prld_y, 12,12), 2, 3)
+            # print(self.rect_btn_plus)
             item['name'] = item['name'].replace("_", " ")
 
             mont = item['cost'] * item['quantity']
+            
+            # pos-rect_list_dialogues
+            self.prld_x = mask.mask_rect.x + 45
+            self.prld_y = mask.mask_rect.y + (item["id"] * newline_space + self.slide_y)
+            self.prld = (self.prld_x, self.prld_y)
+            
             itemx = TExtra(
-                f'{item["quantity"]}, {item["name"]} ${mont}',
-                ([mask.mask_rect.x + 5,
-                mask.mask_rect.y + (item["id"] * newline_space + self.slide_y)]),
-                'black', surface=mask.mask_surf)
+                f'{item["quantity"]}, {item["name"]} ${mont}', self.prld, 'gray1', surface=mask.mask_surf)
+            
+            self.txt_rect = itemx.texto_rect
+            self.rect_btn_plus = (self.prld_x+self.rect.x-289, self.prld_y+self.rect.y-100)
+            self.rect_btn_minu = (self.prld_x+self.rect.x-272, self.prld_y+self.rect.y-100)
 
 
+            # print(txt_rect)
+            boton_mas = DialogueButtons(mask.mask_surf, self.rect_btn_plus)
+            if pygame.Rect.collidepoint(boton_mas.rect, mouse.get_pos()):
+                item['quantity'] += 1
+                # print(f'{item["name"]} (+)')
 
-        tit_dialog = TExtra('Player - Items', [5,0], bgcolor='gray50', surface=mask.mask_surf)
+            boton_menos = DialogueButtons(mask.mask_surf, self.rect_btn_minu)
+            if pygame.Rect.collidepoint(boton_menos.rect, mouse.get_pos()):
+                if item['quantity'] > 0:
+                    item['quantity'] -= 1
+                # print(f'{item["name"]} (-)')
+
+            mont = item['cost'] * item['quantity']
+            total += mont
+            items += item['quantity']
+
+            # print(mont)
+
+        self.vars['total_store'] = total
+        self.vars['total_items'] = items
+
+
+        tit_dialog = TExtra(f'Tienda X - Items ({self.vars["total_items"]}) Tot:${self.vars["total_store"]}', [5,0], 'gray1', bgcolor='gray50', surface=mask.mask_surf)
         #texto de ejemplo para poner texto
+        # textra('Hola!!!', [mask.mask_rect.x+5, mask.mask_rect.y+15+self.slide_y], surface=mask.mask_surf)
         
         mask.draw(screen, (0,0), (self.rect.topright), (-size[0]-32, -size[1]))
+        # mask.draw(screen, (0,0), (self.rect.right, self.rect.top-50))
 
-        
         # Se debe establecer la posicion de mask_rect en el contexto/ambito 
-        self.mask_rect.x = self.rect[0]-size[0]
-        self.mask_rect.y = self.rect[1]-size[1]
-
-        self.mask_rect.w = size[0]
-        self.mask_rect.h = size[1]
+        self.mask_rect.x = self.rect[0]-250
+        self.mask_rect.y = self.rect[1]-100
+        self.mask_rect.w = 250
+        self.mask_rect.h = 100
         # self.mask_rect = self.rect
-        pygame.draw.rect(screen, 'black', (
-            self.mask_rect.x,
-            self.mask_rect.y,
-            self.mask_rect.w,
-            self.mask_rect.h), 1)
-        
+        pygame.draw.rect(screen, 'black', (self.mask_rect), 1)
+        # print(self.rect, self.mask_rect)
 
-        # pygame.draw.rect(screen, 'blueviolet', btn_plus, 1)
-        # pygame.draw.rect(screen, 'blueviolet', btn_minus, 1)
-        
         # Render mask ##########################
 
-        # print(self.rect, self.mask_rect)
+        # self.cube.rotate('blueviolet', [100,100,200,200], screen)
+
 
 
     def get_event(self, event):
@@ -244,15 +334,14 @@ class Player(pygame.sprite.Sprite, Masking):
 
     def update(self):
         '''Actualiza el sprite con las mecanicas genrrales del player
-        
-        
         '''
         
         # Mecanica de colision con las tiendas
         # if self.rect.colliderect():
             # print('Colisione')
 
-        display_percent = 10
+        display_percent = 3
+        
         if self.vars['down']:
             if not self.rect.y + self.rect.height > self.H-(self.H//display_percent):
                 self.player_down()
@@ -306,10 +395,15 @@ class Player(pygame.sprite.Sprite, Masking):
         elif self.vars['last_dir'] == 'left':
             self.select_sub_sprite(12, 14)
 
-        self.rect.x = self.movex
-        self.rect.y = self.movey
-        self.vars['location'][0] = self.rect.x
-        self.vars['location'][1] = self.rect.y
+        self.vars['location'][0] = self.rect.x = self.movex
+        self.vars['location'][1] = self.rect.y = self.movey
+
+        self.collide_rect[0] = self.movex
+        self.collide_rect[1] = self.movey + 48
+        self.collide_rect[3] = 16
+        ## Borra
+        # self.vars['location'][0] = self.rect.x
+        #  = self.rect.y
 
         # Constante de velocidad...
         # aumente # de frames entre cada FPS

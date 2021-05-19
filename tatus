@@ -1,0 +1,27 @@
+[33m66716bd[m[33m ([m[1;36mHEAD[m[33m, [m[1;32m0.0.1beta[m[33m)[m Agregado el sistema de movimiento de tiendas
+[33m6aa2563[m Agregado el sistema de botones
+[33mb4e48d4[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m Creado el sistema de generacion de mapas, modificando aun para mejorarlo.
+[33mbed6729[m Iconos del juego agregados. Agregando clase backgroun user elements Agregando clase de items El sistema muestra dialogos, falta darle implementacion la clase masking funciona corectamente. Modificadas las otras clases. Agregados mas sprites Agregando botones de items
+[33m142e440[m Agregado el renderizado de mapas.
+[33m6239845[m Add background image road for new Render System. Dividi la imagen de tienda el suelo(floor.png) y la casita(camp.png) de ventas para usarlos independientemente como sprites. Corregidas las animaciones de los jugadores, no animaban correctamente. Generé un spretesheet, el general general. :) Nuevo archivo prueba store_only.png para el renderizado de tiles. Modificaciones menores
+[33m8a47286[m Limpie los archivos muestra y de ayuda. Se agrego .gitignore Se agregaron mas sprites de personajes
+[33mdcac231[m Limpie los archivos muestra y de ayuda. Organice los archivos que principalmente uso para iniciar pruebas. :
+[33m54f6a30[m Agregue mas sprites. Cambie el fondo Logica de movimiento
+[33mb9fb629[m Se agrego el movimiento con el mouse Se agrego movimiento de la casita de ventas y el personaje El sistema de guardado del personaje
+[33macbf145[m Agregando sprite de personajes, animacion. Diseñé la animacion Y algunas mejoras
+[33md7417a0[m Agregado el sistema de animaciones de sprites 	El personaje tiene modo espera y caminar en los 2 ejes (x,y) Agregado el spritesheet para probar 	Se agrego la imagen
+[33m5d9483d[m Buen funcionamiento de main.py Antes de modificar la clase Gamer
+[33m2848637[m Add more functions in main.py Add more files and examples Add many changes...
+[33m612e1d1[m Mas avances, mas archivos, mas cositas,
+[33m835e5a8[m Agregando README.md
+[33m04f30a3[m Refactorizando, modificando agregando pyglet y puliendo cosillas
+[33m40f6f93[m Agregando 0_reset_time.py Control del tiempo correcto Modificandole mejoritas a main y corrigiendo y agregando elementos visuales.
+[33m59d9f69[m Agregando cositas
+[33m7183cd2[m Merge branch 'mk2'
+[33mc2716e2[m Agregando ultimos cambios
+[33mad68199[m Cambio de organizacion Refactorizacion de codigo en main.py     Optimizacion en el renderizado del juego
+[33mc7abd55[m Documentos, archivos fuente agregados
+[33m07b66f0[m Agregando sistema de menus Agregando tres botones en el menu boton de inicio del juego (sin texto, funcional) boton de opciones (sin texto, no funcional) boton salir (sin texto, funcional) Agregando funcionalidades de teclas Esc para entrar al juego principal y mostrar el menu
+[33m492338e[m Agregando menus como ejemplo
+[33m574296f[m Agregando limites del juego
+[33m511a1bb[m Agregado sistema de movimiento doble pulsacion de teclas movimiento x,y

@@ -10,15 +10,13 @@ from .stores import Stores, StoreBg
 class Background:
     def __init__(self):
         """Renderizando fondo, se mueve cuando el juagdor toca el border
-
-
         """
 
         # Asignado atributos del renderizado
         self.tile_floor = pygame.image.load(asset('assets/img', 'floor.png'))
         self.tile_store = pygame.image.load(asset('assets/img', 'store_only.png'))
+        self.image = pygame.image.load(asset('assets/img', 'background_road.png')).convert_alpha()
         self.tile_bg = pygame.image.load(asset('assets/img', 'background_road.png')).convert_alpha()
-        self.image = pygame.image.load(asset('assets/img', 'floor_background.png'))
         self.rect = self.image.get_rect()
         self.sprites = []
         self.sprites.append(self.image.subsurface(0, 0, 128, 128))
@@ -28,7 +26,9 @@ class Background:
         self.list_store = []
         self.list_imp = []
         self.list_store_bg = []
-        self.pos = [0,0]
+        self.store_pos = [0,0]
+
+        self.mkt_vars = {'total':0}
 
 
         # Iniciando el renderizado
@@ -46,36 +46,19 @@ class Background:
             for px in range(0, int(W//tw) + 2):
                 surf.blit(self.tile_bg, (px*(tw-1)+pos[0], py*(th-1)+pos[1]))
 
-        # surf.blit(self.image, (-512+pos[0], 0+pos[1]))
-        # surf.blit(self.image, (-512+pos[0], 512+pos[1]))
-        # surf.blit(self.image, (0+pos[0], 0+pos[1]))
-        # surf.blit(self.image, (512+pos[0], 0+pos[1]))
-        # surf.blit(self.image, (0+pos[0], 512+pos[1]))
-        # surf.blit(self.image, (512+pos[0], 512+pos[1]))
-        # tw = self.tile_bg.get_width()
-        # th = self.tile_bg.get_height()
-        # backgroundsurf.blit = pygame.Surface((W, H))
-        # for py in range(0, H//th + 2):
-        #     for px in range(0, W//tw + 2):
-        #         background.blit(self.tile_bg, (px*(tw-1), py*(th-1)))
-
+                if key_press['F4_key']:
+                    mouse = pygame.mouse.get_pressed()
+                    mousepos = pygame.mouse.get_pos()
+                    mouserel = pygame.mouse.get_rel()
+                    if mousepos:
+                        if self.rect.collidepoint(mousepos):
+                            pygame.draw.polygon(screen, 'chocolate1', [(
+                                0+pos[0], 128+pos[1]), (100+pos[0], 128+pos[1]), (128+pos[0], 100+pos[1]), (28+pos[0], 100+pos[1])], 2)
+                            moving = True
+                    elif mouse[0] == False:
+                        moving = False
         
-        if key_press['F4_key']:
-            mouse = pygame.mouse.get_pressed()
-            mousepos = pygame.mouse.get_pos()
-            mouserel = pygame.mouse.get_rel()
-            if mousepos:
-                if self.rect.collidepoint(mousepos):
-                    pygame.draw.polygon(screen, 'chocolate1', [(
-                        0+pos[0], 128+pos[1]), (100+pos[0], 128+pos[1]), (128+pos[0], 100+pos[1]), (28+pos[0], 100+pos[1])], 2)
-                    moving = True
-            elif mouse[0] == False:
-                moving = False
         # Si hay colision con el cursor y esta cerca el jugador debe dibujarse
-        # screen.blit(background, (1024,0))
-        # screen.blit(background, (1024,512))
-        # screen.blit(background, (512,1024))
-        # screen.blit(background, (1024,0))
 
     def tiles(self, posone=[0, 0], colorized=False):
         '''Corregir bien este metodo
@@ -161,7 +144,7 @@ x y  zx
         
         def store_type(tipo=None):
             '''Metodo de renderizado de tienda...'''
-            imp = ([x*128+posone[0], (y*128)+posone[1]])
+            self.store_pos = pygame.Vector2([x*128+posone[0], (y*128)+posone[1]])
 
             store = Stores([x*128+posone[0], (y*128)+posone[1]], tipo)
             self.store_group.add(store)
@@ -190,9 +173,10 @@ x y  zx
                         screen, colorized, ([x*128, y*128], [128, 128]), 1, 75)
 
             #Guardando las tiendas
-            self.list_imp.append(imp)
+            self.list_imp.append(self.store_pos)
             self.list_store.append(store)
             self.list_store_bg.append(store_bg)
+            
 
 
         for y, line in enumerate(map_gral):
@@ -360,9 +344,9 @@ class Badges(pygame.sprite.Sprite):
 
 class UserInterface():
     def __init__(self):
-        self.gui()
+        pass
 
-    def gui(self):
+    def gui(self, tot_price, tot_items):
         '''Dibuja la interface de usuario general de estadisticas y conroles del mercado'''
 
         str_dia = str_time['dia']
@@ -376,5 +360,7 @@ class UserInterface():
                          W-200, 0, 300, 35], 0, 0, 5, 0, 15)
         pygame.draw.ellipse(screen, 'chartreuse3', [W-100, -100, 200, 200])
 
-        counter = TExtra(f'Counter {str_dia}, {tnow[0]:6.1f}', [W-190, 8], 'black')
+        virt_day = TExtra(f'Day: {str_dia}, time: {tnow[0]:4.1f}', [W-190, 16], 'black')
+        total_price = TExtra(f'Total ${tot_price}', [W-190, 4], 'black')
+        total_items = TExtra(f'#{tot_items} items', [W-90, 4], 'black')
 

@@ -40,6 +40,8 @@ key_press = {"TAB_key": False, 'F4_key': False, "p_key": False, }
 stats = {"frame_counter": 0, "extras": ''}
 
 
+mkt_vars = {'quantity':0, 'cost':0}
+
 # ############################################################################
 # Cargando funciones y metodos
 # ############################################################################
@@ -295,6 +297,7 @@ class ActionBadges:
         def __str__(self):
             return self.actionbadge
 
+
 def character_selected():
     '''Selecciona el tipo de personaje a mostrar'''
     diccionario = ['verde', 'azul', 'rojo', 'nanaranjas']
@@ -313,14 +316,14 @@ class TextColors:
         self.counter = 0
         self.color0 = self.color1 = self.color2 = (255)
 
-    def colorize(self):
+    def colorize(self, range1=0, range2=255):
         '''Return color random range'''
         self.counter += 1
         if self.counter >= 5:
             self.counter = 0
-            self.color0 = random.randrange(50, 255)
-            self.color1 = random.randrange(50, 255)
-            self.color2 = random.randrange(50, 255)
+            self.color0 = random.randrange(range1, range2)
+            self.color1 = random.randrange(range1, range2)
+            self.color2 = random.randrange(range1, range2)
         return (self.color0, self.color1, self.color2)
 
 
@@ -430,7 +433,7 @@ class Masking:
 
         # print(mascara_rect)
 
-        mascara.blit(self.mask_surf, (dest[0]+dest_offset[0], dest[1]+dest_offset[1]), (0, 0, 250, 100), pygame.BLEND_ALPHA_SDL2)
+        mascara.blit(self.mask_surf, (dest[0]+dest_offset[0], dest[1]+dest_offset[1]), (0, 0, self.mask_size[0], self.mask_size[1]), pygame.BLEND_ALPHA_SDL2)
         
         self.mask_rect.x = dest[0]+dest_offset[0]
         self.mask_rect.y = dest[1]+dest_offset[1]
@@ -462,4 +465,35 @@ class DialogueButtons:
 
     def rect(self):
         return self.rect
+
+# class Movement:
+#     def __init__(self):
+        
+#         # Moviendo tiendas
+#         for id, store in enumerate(bg.list_store):
+#             store_pos = (store.rectn[0]+player.bg[0], store.rectn[1]+player.bg[1])
+#             print(id, store_pos)
+
+#             store.movement(store_pos)
+
+
+#Suma de los totales generales
+def sum_totals(l):
+    sum = 0
+    for x in l:
+        sum+=x
+    return sum
+
+# Plantilla para el renderizado de capas del juagador
+class YAwareGroup(pygame.sprite.Group):
+    def by_y(self, spr):
+        return spr.pos.y
+
+    def draw(self, surface):
+        sprites = self.sprites()
+        surface_blit = surface.blit
+        for spr in sorted(sprites, key=self.by_y):
+            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+        self.lostsprites = []
+
 

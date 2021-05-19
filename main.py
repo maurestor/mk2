@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+from pygame import sprite
+from overlapping import Actor
 import pygame
 from pygame import display
+from pygame.draw import rect
 # from pygame import examples
 # import os
 # import sys
@@ -25,82 +28,6 @@ from libs.particles import ParticlesPrinciple
 
 import pprint
 # from libs.items import Items
-
-
-
-"""Caracteristicas por agregar
-    
-    CONTINUA CON OTRA COSA CUANDO NO PUEDAS CON ALGO BASTANTE COMPLEJO
-    USA DE TODO.
-    NO CAMBIAR LO QUE YA FUNCIONA!
-    AUN MÍNIMO QUE PAREZCA CADA DETALLE ES MUY IMPORTANTE!
-    NO TE CASES CON LAS COSAS!
-    
-    # Ten cuidado de usar la linea 1 incorrectamente, en linux causa conflicto el interprete
-    
-    ✔ Colisiones
-        
-    Sistema de dialogos GUI ya esta realizada por la mitad
-
-    Sistema de logros!!!
-
-    ✔ Sistema de movimiento 🏃‍♂️
-    
-    ✔ Sistema de efectos - particulas
-        Quiza lo tenga cada objeto...
-
-    ✔ Mostrar menu items jugador
-        » Menus: Pestanias
-    
-    Estadisticas del personaje
-        Caracteristicas fisicas
-            Salud
-            Hambre
-            Resistencias
-                calor, frio, agua, fuego, electricidad, amor, aburrimiento,
-                tristeza, veneno, rechazo, friendzone :V, asfixia
-
-        Economia (Dinero, propiedades, negocios)
-            Dinero total
-            Capacidad de almacenamiento
-                items
-                propiedades
-            Propiedades / Negocios
-
-    Establecer Reloj. ✔ 
-        
-        ✔ time_control()
-        
-        ✔ Mostrar informacion de los tiempos.
-        Mostrar reloj real. hh:ms:ss, dd/mm/yy
-        Mostrar hora virtual del juego. hh:mm:ss, 1er dia (1 sem, 1 mes, etc.)
-        Bucle dia noche en juego.
-            Establecido 10 mins y reinicia el tiempo.
-    
-    Crear un sistema de consola de comandos
-        listar fuentes tipograficas
-        tamanio de pantalla
-        colores
-        dimensiones
-        tiempos reloj
-    
-    Fuentes propuestas:
-        Nokia
-        Comicoro
-        pf tempesta seven
-        retroville
-        retrogaming
-
-    Usare PyGameGUI
-
-    minijuegos
-        alebrije
-        ladron
-        politico
-        luchador
-        familia
-        
-"""
 
 
 # Meter el sistema de botones y menus a una clase por favor :)
@@ -259,6 +186,81 @@ def main_menu():
 # ############################################################################
 # Loop Principal
 # ############################################################################
+"""Caracteristicas por agregar
+    
+    CONTINUA CON OTRA COSA CUANDO NO PUEDAS CON ALGO BASTANTE COMPLEJO
+    USA DE TODO.
+    NO CAMBIAR LO QUE YA FUNCIONA!
+    AUN MÍNIMO QUE PAREZCA CADA DETALLE ES MUY IMPORTANTE!
+    NO TE CASES CON LAS COSAS!
+    
+    # Ten cuidado de usar la linea 1 incorrectamente, en linux causa conflicto el interprete
+    
+    ✔ Colisiones
+        
+    Sistema de dialogos GUI ya esta realizada por la mitad
+
+    Sistema de logros!!!
+
+    ✔ Sistema de movimiento 🏃‍♂️
+    
+    ✔ Sistema de efectos - particulas
+        Quiza lo tenga cada objeto...
+
+    ✔ Mostrar menu items jugador
+        » Menus: Pestanias
+    
+    Estadisticas del personaje
+        Caracteristicas fisicas
+            Salud
+            Hambre
+            Resistencias
+                calor, frio, agua, fuego, electricidad, amor, aburrimiento,
+                tristeza, veneno, rechazo, friendzone :V, asfixia
+
+        Economia (Dinero, propiedades, negocios)
+            Dinero total
+            Capacidad de almacenamiento
+                items
+                propiedades
+            Propiedades / Negocios
+
+    Establecer Reloj. ✔ 
+        
+        ✔ time_control()
+        
+        ✔ Mostrar informacion de los tiempos.
+        Mostrar reloj real. hh:ms:ss, dd/mm/yy
+        Mostrar hora virtual del juego. hh:mm:ss, 1er dia (1 sem, 1 mes, etc.)
+        Bucle dia noche en juego.
+            Establecido 10 mins y reinicia el tiempo.
+    
+    Crear un sistema de consola de comandos
+        listar fuentes tipograficas
+        tamanio de pantalla
+        colores
+        dimensiones
+        tiempos reloj
+    
+    Fuentes propuestas:
+        Nokia
+        Comicoro
+        pf tempesta seven
+        retroville
+        retrogaming
+
+    Usare PyGameGUI
+
+    minijuegos
+        alebrije
+        ladron
+        politico
+        luchador
+        familia
+    Temporada de carteles y anuncios
+
+        
+"""
 
 def main_game():
     """Función principal del juego"""
@@ -271,15 +273,44 @@ def main_game():
     running = True  # Activador del menu
     der = 0  # Restableciendo el movimiento.
     
+    player = Player(pygame.image.load(asset('assets/img', 'player-anim.png')), (W//2,H//2))
+    sprites = YAwareGroup(
+        player,
+        Actor(pygame.image.load(asset('assets/img', 'player-anim.png')), (W//2,H//2))
+    )
+    # player_collider = pygame.sprite.Group(player.collide_rect)
+    player_group = pygame.sprite.Group(player)
+
     #Cargando sistema de dialogos?
     
-    #Carga los tile con anterioridad...
-    bg.tiles()
-
+    
     while running:
         screen.fill('black')
         # Renderizar el piso
         bg.update(screen, (player.bg[0], player.bg[1]))
+    
+        # Moviendo tiendas Loop Gral
+        for id2, imp in enumerate(bg.list_imp):
+            store_pos = (imp[0]+player.bg[0], imp[1]+player.bg[1])
+            tot_price = []
+            tot_items = []
+            
+            for id, store in enumerate(bg.list_store):
+                if id == id2:
+                    store.movement(store_pos)
+                #costo total de la tienda
+
+                tot_price.append(store.vars['total_store'])
+                tot_items.append(store.vars['total_items'])
+            
+                # print(f'Tienda: {id} - {tot_items}')
+                # print(f'player {tot_price}')
+                
+            for id3, store_bg in enumerate(bg.list_store_bg):
+                if id2 == id3:
+                    store_bg.movement(store_pos)
+
+        
 
         time_delta = clock.tick(60)/1000.0
 
@@ -311,13 +342,15 @@ def main_game():
 
                     # with open('storevars.json',"w") as f:
                     #     json.dump(stores_vars, f, indent=4, sort_keys=True)
-                    print('guardando savegame...')
+                    print('Guardando el juego!!! Savegame!!! ;)')
+                    print('####################################\n')
+                    
                     with open('/home/restor/Documents/game-develop/mk2/savegame.json', "w") as f:
                         game_dump = []
                         game_dump.append('Player vars')
                         game_dump.append(player.vars)
                         game_dump.append('Player items')
-                        game_dump.append(player.items.item_list)
+                        game_dump.append(player.items.list)
 
                         for store in bg.list_store:
                             # game_dump.append(player.exis)
@@ -325,7 +358,8 @@ def main_game():
                             # game_dump.append(store2.vars)
                             # game_dump.append('Store 2 vars')
                             game_dump.append(store.vars)
-                            game_dump.append(store.items.item_list)
+                            game_dump.append(store.items.list)
+
 
                         json.dump(game_dump, f, indent=4, sort_keys=True)
 
@@ -412,11 +446,12 @@ def main_game():
                     if event.rel[1] < 0:
                         player.vars['last_dir'] = 'up'
                     # interaction(player.rect)
-                for id, store in enumerate(bg.list_store):
-                    for id2, store_bg in enumerate(bg.list_store_bg):
-                        if store.rect.collidepoint(event.pos):
-                            store.control(event.rel[0],event.rel[1])
-                            store_bg.control(event.rel[0],event.rel[1])
+                for store in bg.list_store:
+                    if store.rect.collidepoint(event.pos):
+                        store.control(event.rel[0],event.rel[1])
+                for store_bg in bg.list_store_bg:
+                    if store.rect.collidepoint(event.pos):
+                        store_bg.control(event.rel[0],event.rel[1])
                     # elif store2.rect.collidepoint(event.pos): 
                     #     store2.control(event.rel[0],event.rel[1])
                     #     store_bg2.control(event.rel[0],event.rel[1])
@@ -436,9 +471,6 @@ def main_game():
                 store.interaction()
             for store_bg in bg.list_store_bg:
                 store_bg.interaction()
-
-            # store2.interaction()
-            # store_bg2.interaction()
 
             player.interaction()
             # Desactivar particulas
@@ -464,6 +496,9 @@ def main_game():
         player_group.update()
         player_group.draw(screen)
 
+        # sprites.update()
+        # sprites.draw(screen)
+
         # def movement():
         #     movex = store.rect.x + player.bg[0]
         #     movey = store.rect.y + player.bg[1]
@@ -472,29 +507,18 @@ def main_game():
         #     return pos
 
         # print(player.bg)
+        
         for id, store_bg in enumerate(bg.list_store_bg):
-            # Colisiones checar esta declaracion...
-            # Importante con el uso de las mecanicas y los sprites....
-            # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
-            colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
-            # colliderect2 = pygame.Rect.colliderect(player.rect, store_bg2.rect)
+            colliderect = pygame.Rect.colliderect(player.collide_rect, store_bg.rect)
             if colliderect:
-                # if badge == 'exclamation':
-                #     player.interaction(badge)
-                # else:
                 for id2, store in enumerate(bg.list_store):
                     if id == id2:
-                        store.interaction()
-                        
-                
+                        store.dialogue_box()
                 # Haz tu magia... ;)
-                player.interaction(badge.drawbadge())
-            # elif colliderect2:
+                player.dialogue_box()
 
-            #     # store2.interaction()
-            #     player.interaction(badge.drawbadge())
             elif not colliderect:
-                # Reiniciando el contador aleatorio.
+                # Reiniciando el contador aleatorio de badges.
                 badge = ActionBadges()
                 # audio_effect('menu', 0.5)
 
@@ -516,7 +540,13 @@ def main_game():
 
         # Renderizando la interfaz de usuario
         statistic=Stats()
-        Ui.gui()
+
+        # Agregando items del jugador a las tiendas
+        tot_price.append(player.vars['total_store'])
+        tot_items.append(player.vars['total_items'])
+        player_tot = player.vars['total_items']
+        print(f'Player {player_tot}')
+        ui.gui(sum_totals(tot_price), sum_totals(tot_items))
 
         #Renderizar particulas
         
@@ -547,20 +577,16 @@ if __name__ == '__main__':
     playtime_total = None  # Global
 
 
+    #Carga los tile con anterioridad...
     bg = Background()
+
+    bg.tiles()
     menu = Menu()
 
     
-    player = Player(character=character_selected(), speed=6)
-    # player_collider = pygame.sprite.Group(player.collide_rect)
-    player_group = pygame.sprite.Group(player)
     
-    # everything = pygame.sprite.Group(player)
-    # everything.add(store)
-    # everything.add(background)
-
     # Cargando la interfaza de usuario
-    Ui = UserInterface()
+    ui = UserInterface()
     # Particulas effects, efectos
     particle1 = ParticlesPrinciple()
     

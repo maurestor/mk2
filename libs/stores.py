@@ -1,4 +1,6 @@
 import pygame
+from pygame import color
+from pygame import surface
 from pygame.locals import *
 from .pygamextras import *
 from .items import Items
@@ -49,7 +51,6 @@ class Stores(pygame.sprite.Sprite, Masking):
 
         self.spritesheet = self.sprites
         
-        self.vars = {'id':store_id, 'type':'basic', 'location':[location[0], location[1]], 'total_store':0}
         
         #moving plus and minus
         self.moving = [0, True]
@@ -65,110 +66,24 @@ class Stores(pygame.sprite.Sprite, Masking):
         self.rect_btn_minu = [0,0]
         self.txt_rect = Rect(0,0,0,0)
         # self.newpos = []
+        # self.colors= TextColors()
+        self.rectn = self.rect
+        self.slide_y = 10
 
-
-
-    def dialogue_box(self):
-        #Bounce list
+        self.vars = {'id':store_id, 'type':'basic', 'location':[location[0], location[1]], 'total_store':0, 'total_items':0}
         
-        # Render mask ##########################
-        mask = Masking((250, 100), debug=1)
-
-        newline_space = 15
-        items_number = len(self.items.item_list)
-        self.items_height = (newline_space*items_number)-newline_space*2
-
-        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
-        pygame.draw.rect(mask.mask_surf, 'gray75', (0,0,250, 100), 0)
-
         total = 0
         items = 0
-        # Renderizado desde Items
-        for item in self.items.item_list:
-            
-            pygame.draw.rect(mask.mask_surf, 'green', (self.prld_x+self.txt_rect.w+15, self.prld_y, 12,12), 0, 3)
-            pygame.draw.rect(mask.mask_surf, 'orange', (self.prld_x+self.txt_rect.w+30, self.prld_y, 12,12), 0, 3)
-            pygame.draw.rect(mask.mask_surf, 'chartreuse4', (self.prld_x+self.txt_rect.w+15, self.prld_y, 12,12), 1, 3)
-            pygame.draw.rect(mask.mask_surf, 'chocolate', (self.prld_x+self.txt_rect.w+30, self.prld_y, 12,12), 1, 3)
-            # print(self.rect_btn_plus)
-            item['name'] = item['name'].replace("_", " ")
 
+        for item in self.items.list:
             mont = item['cost'] * item['quantity']
-            
-            # pos-rect_list_dialogues
-            self.prld_x = mask.mask_rect.x + 5
-            self.prld_y = mask.mask_rect.y + (item["id"] * newline_space + self.slide_y)
-            self.prld = (self.prld_x, self.prld_y)
-            
-            itemx = TExtra(
-                f'{item["quantity"]}, {item["name"]} ${mont}', self.prld, 'black', surface=mask.mask_surf)
-
-            self.txt_rect = itemx.texto_rect
-            self.rect_btn_plus = (self.prld_x+self.rect.x+self.txt_rect.w+143, self.prld_y+self.rect.y-51)
-            self.rect_btn_minu = (self.prld_x+self.rect.x+self.txt_rect.w+158, self.prld_y+self.rect.y-51)
-
-            
-            # print(txt_rect)
-            boton_mas = DialogueButtons(mask.mask_surf, self.rect_btn_plus)
-            if pygame.Rect.collidepoint(boton_mas.rect, mouse.get_pos()) and mask.mask_surf:
-                item['quantity'] += 1 
-                print(f'{item["name"]} (+)')
-
-            boton_menos = DialogueButtons(mask.mask_surf, self.rect_btn_minu)
-            if pygame.Rect.collidepoint(boton_menos.rect, mouse.get_pos()) and mask.mask_surf:
-                if item['quantity'] > 0:
-                    item['quantity'] -= 1 
-                print(f'{item["name"]} (-)')
-
-            
             total += mont
             items += item['quantity']
-
-            # print(mont)
 
         self.vars['total_store'] = total
         self.vars['total_items'] = items
         
-
-        tit_dialog = TExtra(f'Tienda X - Items ({self.vars["total_items"]}) Tot:${self.vars["total_store"]}', [5,0], bgcolor='gray50', surface=mask.mask_surf)
-        #texto de ejemplo para poner texto
-        # textra('Hola!!!', [mask.mask_rect.x+5, mask.mask_rect.y+15+self.slide_y], surface=mask.mask_surf)
-        
-        
-        mask.draw(screen, (0,0), (self.rect.right, self.rect.top-50))
-
-        # Se debe establecer la posicion de mask_rect en el contexto/ambito 
-        self.mask_rect.x = self.rect[0]+128;self.mask_rect.y = self.rect[1]-50
-        self.mask_rect.w = 250;self.mask_rect.h = 100
-        # self.mask_rect = self.rect
-        pygame.draw.rect(screen, 'black', (self.mask_rect), 1)
-        # print(self.rect, self.mask_rect)
-
-        # Render mask ##########################
-
-        # self.cube.rotate('blueviolet', [100,100,200,200], screen)
-
-    def interaction(self, *arg):
-        for var in arg:
-            pass
-        if key_press['F4_key']:
-            pygame.draw.rect(screen, 'gold', (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1, 5)
-
-            pos_store = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'darkslategray1')
-            
-        self.dialogue_box()
-
-            #Salto en debug
-            # self.slide_y = bounce(self.items.items_height, 0, 1)
-        
-        pygame.draw.rect(screen, 'red', [
-                self.rect.x,
-                self.rect.y,
-                self.rect.w,
-                self.rect.h],
-                1, 5)
-
-        # Llamar a los dialogos
+        self.color = TextColors()
 
 
     def get_event(self, event):
@@ -178,36 +93,162 @@ class Stores(pygame.sprite.Sprite, Masking):
     
         ''' Mecanismo de movimiento con el scroll/rueda del raton
         '''
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4 and self.mask_rect.collidepoint(event.pos):
+            if event.button == 5 and self.mask_rect.collidepoint(event.pos):
                 if self.slide_y > -self.items.items_height:
                     self.slide_y -= 10
                 # print('arriba')
-            elif event.button == 5 and self.mask_rect.collidepoint(event.pos):
+            elif event.button == 4 and self.mask_rect.collidepoint(event.pos):
                 if self.slide_y < 10:
                     self.slide_y += 10
                 # print('abajo')
+            # for item in self.items.list:
+            #     boton_mas = DialogueButtons(self.mask_surf, self.rect_btn_plus)
+            #     print(boton_mas.rect)
+            #     if event.button == 1 and pygame.Rect.collidepoint(boton_mas.rect, event.pos):
+            #         item['quantity'] += 1
+            #         print(f'{item["name"]} (+)')
 
 
+
+    def interaction(self, *arg):
+        for var in arg:
+            pass
+        if key_press['F4_key']:
+            pygame.draw.rect(screen, 'gold', (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1, 5)
+
+            pos_store = TExtra(f'pos: {self.rect.x}, {self.rect.y}', [self.rect.x, self.rect.y-20], 'darkslategray1')
+            
+
+            # Salto en debug
+            self.slide_y = bounce(self.items.items_height, 0, 1)
+        
+        # pygame.draw.rect(screen, 'red', [
+        #         self.rect.x,
+        #         self.rect.y,
+        #         self.rect.w,
+        #         self.rect.h],
+        #         1, 5)
+
+        # self.dialogue_box()
+
+        # Llamar a los dialogos
+
+
+
+    def dialogue_box(self):
+        #Bounce list
+        
+        # Render mask ##########################
+        
+        mask = Masking((250, 150), debug=1)
+
+        newline_space = 15
+        items_number = len(self.items.list)
+        self.items_height = (newline_space*items_number)-newline_space*2
+
+        # self.cube.rotate('gold', [50,50, 100,100], mask.mask_surf)
+        mask.mask_surf.set_alpha(230)
+        pygame.draw.rect(mask.mask_surf, 'gray65', (0,0,250, 150), 0)
+
+        total = 0
+        items = 0
+        # Renderizado desde Items
+        for item in self.items.list:
+            # colorized1 = self.colors.colorize(50, 255)
+            # colorized2 = self.colors.colorize(0, 200)
+
+            pygame.draw.rect(mask.mask_surf, 'green', (self.prld_x-39, self.prld_y, 12,12), 0, 3)
+            pygame.draw.rect(mask.mask_surf, 'chocolate1', (self.prld_x-24, self.prld_y, 12,12), 0, 3)
+            pygame.draw.rect(mask.mask_surf, 'green4', (self.prld_x-39, self.prld_y, 12,12), 2, 3)
+            pygame.draw.rect(mask.mask_surf, 'chocolate3', (self.prld_x-24, self.prld_y, 12,12), 2, 3)
+            # print(self.rect_btn_plus)
+            item['name'] = item['name'].replace("_", " ")
+
+            mont = item['cost'] * item['quantity']
+            
+            # pos-rect_list_dialogues
+            self.prld_x = mask.mask_rect.x + 45
+            self.prld_y = mask.mask_rect.y + (item["id"] * newline_space + self.slide_y)
+            self.prld = (self.prld_x, self.prld_y)
+            
+            itemx = TExtra(
+                f'{item["quantity"]}, {item["name"]} ${mont}', self.prld, 'gray1', surface=mask.mask_surf)
+            
+            self.txt_rect = itemx.texto_rect
+            self.rect_btn_plus = (self.prld_x+self.rect.x+90, self.prld_y+self.rect.y-51)
+            self.rect_btn_minu = (self.prld_x+self.rect.x+105, self.prld_y+self.rect.y-51)
+
+            
+            # print(txt_rect)
+            boton_mas = DialogueButtons(mask.mask_surf, self.rect_btn_plus)
+            if pygame.Rect.collidepoint(boton_mas.rect, mouse.get_pos()):
+                item['quantity'] += 1
+                # print(f'{item["name"]} (+)')
+
+            boton_menos = DialogueButtons(mask.mask_surf, self.rect_btn_minu)
+            if pygame.Rect.collidepoint(boton_menos.rect, mouse.get_pos()):
+                if item['quantity'] > 0:
+                    item['quantity'] -= 1
+                # print(f'{item["name"]} (-)')
+
+
+            total += mont
+            items += item['quantity']
+
+            # print(mont)
+
+        self.vars['total_store'] = total
+        self.vars['total_items'] = items
+        
+
+        tit_dialog = TExtra(f'Tienda X - Items ({self.vars["total_items"]}) Tot:${self.vars["total_store"]}', [5,0], 'gray1', bgcolor='gray50', surface=mask.mask_surf)
+        #texto de ejemplo para poner texto
+        # textra('Hola!!!', [mask.mask_rect.x+5, mask.mask_rect.y+15+self.slide_y], surface=mask.mask_surf)
+        
+        
+        mask.draw(screen, (0,0), (self.rect.right, self.rect.top-50))
+
+        # Se debe establecer la posicion de mask_rect en el contexto/ambito 
+        self.mask_rect.x = self.rect[0]+128;self.mask_rect.y = self.rect[1]-50
+        self.mask_rect.w = 250;self.mask_rect.h = 150
+        # self.mask_rect = self.rect
+        pygame.draw.rect(screen, 'black', (self.mask_rect), 1)
+        # print(self.rect, self.mask_rect)
+
+        # Render mask ##########################
+
+        # self.cube.rotate('blueviolet', [100,100,200,200], screen)
+
+
+    
     def control(self, x, y):
         """
         control player movement
         """
         self.rect.x += x
         self.rect.y += y
-    
 
-    def update(self, pos=[0, 0]):
-        
+
+
+    def movement(self, pos=(0,0)):
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+
+
+    def update(self):
+
         self.current_sprite += 0.05  # aumente # de frames entre cada FPS
         if self.current_sprite > len(self.sprites):
             self.current_sprite = 0
         self.image = self.sprites[int(self.current_sprite)-1] # si es entero cambiar frame
 
-        # self.movement(pos)
 
         self.vars['location'][0] = self.rect.x
         self.vars['location'][1] = self.rect.y
+        # screen.blit(self.image, (self.rectn[0],self.rectn[1]))
 
 
 
@@ -227,6 +268,10 @@ class StoreBg(pygame.sprite.Sprite):
         """
         self.rect.x += x
         self.rect.y += y
+    
+    def movement(self, pos=(0,0)):
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]+108
 
     def interaction(self):
         #Establecer rect despues de su asignacion NO MOVER!!!

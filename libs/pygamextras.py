@@ -3,6 +3,8 @@
 # 
 
 import pygame, pygame_gui
+from pygame import mouse
+from pygame import display
 from pygame.locals import *
 import time
 from datetime import datetime
@@ -10,6 +12,9 @@ import os, random, sys, math
 from random import randrange, randint
 
 pygame.init()
+
+print(f"\nMecaro Games X Inc.\n")
+
 W, H = 1280//1.5, 960//1.5
 os.environ['SDL_VIDEO_WINDOW_POS'] = f"{0},{0}"
 screen = pygame.display.set_mode((int(W), int(H)), flags=HWACCEL|RESIZABLE|DOUBLEBUF|NOFRAME)
@@ -440,3 +445,21 @@ class Masking:
                         [self.mask_rect.w, self.mask_rect.h]), 1)
 
         ## IMPORTANT NOTE: Recuerda establecer el rect de la mascara en el contexto donde se dibuja, no es posible aqui.
+
+class DialogueButtons:
+    def __init__(self, surface=screen, rel_position=None, color=None):
+        
+        self.shape = pygame.Surface((12, 12), SRCALPHA)
+        if color != None:
+            self.shape.fill(color)
+        else:
+            self.shape.fill((0,0,0,0))
+
+        self.rect = Rect(rel_position[0], rel_position[1], 12, 12)
+
+        screen.blit(self.shape, rel_position)
+        
+
+    def rect(self):
+        return self.rect
+

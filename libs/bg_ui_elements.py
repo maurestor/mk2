@@ -1,6 +1,7 @@
 # from .player import Player
 import pygame
 from pygame.locals import *
+from pygame.surface import Surface
 from .pygamextras import *
 from random import randrange
 from .stores import Stores, StoreBg
@@ -21,31 +22,29 @@ class Background:
         self.rect = self.image.get_rect()
         self.sprites = []
         self.sprites.append(self.image.subsurface(0, 0, 128, 128))
-
-
+        
 
         self.store_group = pygame.sprite.Group()
-        self.list_store = {}
-        self.pos = [0,0]
+        self.list_store = []
         self.list_imp = []
         self.list_store_bg = []
-        
+        self.pos = [0,0]
+
 
         # Iniciando el renderizado
 
     def update(self, surf, pos=[0, 0]):
 
 
-        tile_bg = pygame.image.load("/home/restor/Documents/game-develop/Python manuals/background_road.png").convert_alpha()
         # mask = pygame.image.load("/home/restor/Documents/game-develop/Python manuals/mask.png").convert_alpha()
 
-        tw = tile_bg.get_width()
-        th = tile_bg.get_height()
+        tw = self.tile_bg.get_width()
+        th = self.tile_bg.get_height()
 
         background = pygame.Surface((W, H))
         for py in range(0, int(H//th) + 2):
             for px in range(0, int(W//tw) + 2):
-                surf.blit(tile_bg, (px*(tw-1)+pos[0], py*(th-1)+pos[1]))
+                surf.blit(self.tile_bg, (px*(tw-1)+pos[0], py*(th-1)+pos[1]))
 
         # surf.blit(self.image, (-512+pos[0], 0+pos[1]))
         # surf.blit(self.image, (-512+pos[0], 512+pos[1]))
@@ -152,90 +151,70 @@ x     x
           
 '''
         map_gral = """  x       
-    x     
-x x   x   
-          
-          
+    z     
+x y  zx   
+    y     
+  z       
           
           """
-
         map_gral = map_gral.splitlines()
         
-        # print(f'Rendering that map :)\n{"-"*10}')
-        # for line in map_gral:
-        #     print(line)
-        # print("-"*10)
-        # print(posone[1])
+        def store_type(tipo=None):
+            '''Metodo de renderizado de tienda...'''
+            imp = ([x*128+posone[0], (y*128)+posone[1]])
 
-        # # Asignado atributos del renderizado
-        # tile_floor = pygame.image.load(asset('assets/img', 'floor.png'))
-        # tile_store = pygame.image.load(asset('assets/img', 'store_only.png'))
-        # tile_bg = pygame.image.load(asset('assets/img', 'background_road.png'))
+            store = Stores([x*128+posone[0], (y*128)+posone[1]], tipo)
+            self.store_group.add(store)
 
-        # def tiles(map0, colorized=None):
-        # global tile_floor, tile_store
-        # self.list_store = []
+            store_bg = StoreBg([store.rect.x, store.rect.y])
+            self.store_group.add(store_bg)
+            
+            # screen.blit(tile_floor, (x*128+posone[0], (y*128)+108+posone[1]))
+
+            # screen.blit(tile_store, (x*128+posone[0], y*128+posone[1]))
+            
+            # Dibujar en los puntos marcados
+            if colorized==True:
+                if x == 0 or y == 0:
+                    if 0 == y and x == 0:
+                        pygame.draw.rect(
+                            screen, colorized, ([x, y], [128, 128]), 1, 75)
+                    elif y > 0:
+                        pygame.draw.rect(
+                            screen, colorized, ([x, y*128], [128, 128]), 1, 75)
+                    elif x > 0:
+                        pygame.draw.rect(
+                            screen, colorized, ([x*128, y], [128, 128]), 1, 75)
+                elif not 0 in (x, y):
+                    pygame.draw.rect(
+                        screen, colorized, ([x*128, y*128], [128, 128]), 1, 75)
+
+            #Guardando las tiendas
+            self.list_imp.append(imp)
+            self.list_store.append(store)
+            self.list_store_bg.append(store_bg)
+
+
         for y, line in enumerate(map_gral):
             for x, c in enumerate(line):
                 # print(pos[0])
                 # if c in (" ", "x"):
                 #     screen.blit(tile_bg, ((x*128), (y*128)))
                 if c == "x":
-
-                    imp = ([x*128+posone[0], (y*128)+posone[1]])
-                    store = Stores([x*128+posone[0], (y*128)+posone[1]])
-                    store_bg = StoreBg([store.rect.x, store.rect.y])
-                    self.store_group.add(store)
-                    self.store_group.add(store_bg)
-
+                    store_type(None)
+                if c == 'y':
+                    store_type('green')
+                if c == "z":
+                    store_type('dark_green')
+                
+        
                     
-                    # screen.blit(tile_floor, (x*128+posone[0], (y*128)+108+posone[1]))
-
-                    # screen.blit(tile_store, (x*128+posone[0], y*128+posone[1]))
-                    
-
-                    # Dibujar en los puntos marcados
-                    if colorized==True:
-                        if x == 0 or y == 0:
-                            if 0 == y and x == 0:
-                                pygame.draw.rect(
-                                    screen, colorized, ([x, y], [128, 128]), 1, 75)
-                            elif y > 0:
-                                pygame.draw.rect(
-                                    screen, colorized, ([x, y*128], [128, 128]), 1, 75)
-                            elif x > 0:
-                                pygame.draw.rect(
-                                    screen, colorized, ([x*128, y], [128, 128]), 1, 75)
-                        elif not 0 in (x, y):
-                            pygame.draw.rect(
-                                screen, colorized, ([x*128, y*128], [128, 128]), 1, 75)
-
-                    #Guardando las tiendas
-                    # self.list_store["store"].append(imp)
-                    # self.list_store.append(store)
-                    # self.list_store_bg.append(store_bg)
-
-                    # print(f'Mostrando {id(store)} {store.rect}')
-                    # print(f'{ipm} indivdual pos store.')
-
-                    
-
-        # self.list_store()
-
-    # def list_store(self):
-    #     for obj in self.list_store:
 
     def draw_(self):
         pass
 
     def cuadricula_posicion(self):
         pass
-# class cuadro_posiscion:
-#     def __init__(self):
-#         '''Dibuja
-#         pass
-#     def update(self):
-#         pass
 
 
 class Stats:
@@ -247,15 +226,18 @@ class Stats:
             # Muestra el mouse
             pos_mouse = TExtra(f"Mouse, X: {mx}, Y: {my}", (20, 60),
                    'black', 'black', 1, None, 'white', 5, 5, 5, 5)
+
             time_stat = TExtra(f'{str_dia} dias {tnow[0]:6.3f}', (20, 80),
                    'black', 'black', 1, None, 'white', 5, 5, 5, 5)
 
             # Muestra la hora real.
             time_real = TExtra(f'Hora: {hora_real}', (50+(W/2), 34),
                    'black', 'black', 1, None, 'white', 5, 5, 5, 5)
+
             # Muestra el momento del dia
             time_virt = TExtra('{}'.format(str_time['moment_time']), (50+(W/2),
                    55), 'black', 'black', 1, None, 'white', 5, 5, 5, 5)
+
             time_virt2 = TExtra(f'{vday}', (50+(W/2), 75), 'black',
                    'black', 1, None, 'white', 5, 5, 5, 5)
 
@@ -395,3 +377,4 @@ class UserInterface():
         pygame.draw.ellipse(screen, 'chartreuse3', [W-100, -100, 200, 200])
 
         counter = TExtra(f'Counter {str_dia}, {tnow[0]:6.1f}', [W-190, 8], 'black')
+

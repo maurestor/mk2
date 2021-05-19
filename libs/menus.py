@@ -20,7 +20,7 @@ class Menu:
     def show(self):
         # Dibujar el menu en medio
         screen.blit(self.menu, (((W//2)-self.w/2), ((H//2)-self.h/2)))
-    
+
 
 class Dialogue(Menu):
     def __init__(self):

@@ -93,6 +93,13 @@ import pprint
 
     Usare PyGameGUI
 
+    minijuegos
+        alebrije
+        ladron
+        politico
+        luchador
+        familia
+        
 """
 
 
@@ -289,10 +296,11 @@ def main_game():
             # Enviando eventos a dialogue
 
             # Creando loop de mapa stores
+            player.get_event(event)
             for store in bg.list_store:
                 store.get_event(event)
+                
             # store2.get_event(event)
-            # player.get_event(event)
             if event.type == QUIT:
                 quit()
             if event.type == KEYDOWN:
@@ -313,7 +321,7 @@ def main_game():
 
                         for store in bg.list_store:
                             # game_dump.append(player.exis)
-                            game_dump.append(f'Store {id(store)} vars')
+                            game_dump.append(f'Store {(store)} vars')
                             # game_dump.append(store2.vars)
                             # game_dump.append('Store 2 vars')
                             game_dump.append(store.vars)
@@ -380,10 +388,11 @@ def main_game():
                 if player.rect.collidepoint(event.pos):
                     print('player')
                     moving = True
-                if store.rect.collidepoint(event.pos):
-                    for store in bg.list_store:
+                
+                for id, store in enumerate(bg.list_store):
+                    if store.rect.collidepoint(event.pos):
                         moving = True
-                        print('shop')
+                        print('shop', id)
                 # if store2.rect.collidepoint(event.pos):
                 #     moving = True
                 #     print('shop2')
@@ -403,15 +412,15 @@ def main_game():
                     if event.rel[1] < 0:
                         player.vars['last_dir'] = 'up'
                     # interaction(player.rect)
-                elif store.rect.collidepoint(event.pos):
-                    for store in bg.list_store:
-                        store.control(event.rel[0],event.rel[1])
-                    for store_bg in bg.list_store_bg:
-                        store_bg.control(event.rel[0],event.rel[1])
-                # elif store2.rect.collidepoint(event.pos): 
-                #     store2.control(event.rel[0],event.rel[1])
-                #     store_bg2.control(event.rel[0],event.rel[1])
-                # print(event.rel)
+                for id, store in enumerate(bg.list_store):
+                    for id2, store_bg in enumerate(bg.list_store_bg):
+                        if store.rect.collidepoint(event.pos):
+                            store.control(event.rel[0],event.rel[1])
+                            store_bg.control(event.rel[0],event.rel[1])
+                    # elif store2.rect.collidepoint(event.pos): 
+                    #     store2.control(event.rel[0],event.rel[1])
+                    #     store_bg2.control(event.rel[0],event.rel[1])
+                    # print(event.rel)
 
 
             # Iniciando el evento particulas
@@ -442,31 +451,7 @@ def main_game():
         #         store.rect.x = (x*128)+imp[0]
         #         store.rect.y = (y*128)+imp[1]
         #         print(imp, store.rect)
-        
-        # print(player.bg)
-        for store_bg in bg.list_store_bg:
-            #Colisiones checar esta declaracion...
-            # Importante con el uso de las mecanicas y los sprites....
-            # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
-            colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
-            # colliderect2 = pygame.Rect.colliderect(player.rect, store_bg2.rect)
-            if colliderect:
-                # if badge == 'exclamation':
-                #     player.interaction(badge)
-                # else:
-                # for store in bg.list_store:
-                store.interaction()
-                player.interaction(badge.drawbadge())
-            # elif colliderect2:
 
-            #     # store2.interaction()
-            #     player.interaction(badge.drawbadge())
-
-
-            elif not colliderect:
-                # Reiniciando el contador aleatorio.
-                badge = ActionBadges()
-                # audio_effect('menu', 0.5)
 
         # store.update(store.control(player.bg[0], player.bg[1]))
         # store2.update(store2.control(player.bg[0], player.bg[1]))
@@ -486,6 +471,32 @@ def main_game():
         #     store.rect.move_ip(movex, movey)
         #     return pos
 
+        # print(player.bg)
+        for id, store_bg in enumerate(bg.list_store_bg):
+            # Colisiones checar esta declaracion...
+            # Importante con el uso de las mecanicas y los sprites....
+            # collidegroup = pygame.sprite.groupcollide(player_group, store_group, False, False)
+            colliderect = pygame.Rect.colliderect(player.rect, store_bg.rect)
+            # colliderect2 = pygame.Rect.colliderect(player.rect, store_bg2.rect)
+            if colliderect:
+                # if badge == 'exclamation':
+                #     player.interaction(badge)
+                # else:
+                for id2, store in enumerate(bg.list_store):
+                    if id == id2:
+                        store.interaction()
+                        
+                
+                # Haz tu magia... ;)
+                player.interaction(badge.drawbadge())
+            # elif colliderect2:
+
+            #     # store2.interaction()
+            #     player.interaction(badge.drawbadge())
+            elif not colliderect:
+                # Reiniciando el contador aleatorio.
+                badge = ActionBadges()
+                # audio_effect('menu', 0.5)
 
 
         # #crear efecto dia noche...

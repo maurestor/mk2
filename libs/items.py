@@ -105,7 +105,7 @@ class Items(pg.sprite.Sprite):
         pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(self.item_list)
         
-        for item in self.item_list:              
+        for item in self.item_list:
             if item['cat'] == 1:
                 item['quantity'] = randint(1, 10)
                 item['quality'] = randint(0, 6)

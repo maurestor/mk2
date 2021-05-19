@@ -252,9 +252,9 @@ class Player(pygame.sprite.Sprite, Masking):
         # if self.rect.colliderect():
             # print('Colisione')
 
-
+        display_percent = 10
         if self.vars['down']:
-            if not self.rect.y + self.rect.height > self.H-(self.H//5):
+            if not self.rect.y + self.rect.height > self.H-(self.H//display_percent):
                 self.player_down()
                 self.control(y=self.speed, x=0)
                 self.select_sub_sprite(6, 8)
@@ -268,7 +268,7 @@ class Player(pygame.sprite.Sprite, Masking):
             self.select_sub_sprite(4, 6)
 
         if self.vars['right']:
-            if not self.rect.x + self.rect.width > self.W-(self.W//5):
+            if not self.rect.x + self.rect.width > self.W-(self.W//display_percent):
                 self.vars['last_dir'] = 'right'
                 self.control(y=0, x=self.speed)
                 self.select_sub_sprite(2, 4)
@@ -281,7 +281,7 @@ class Player(pygame.sprite.Sprite, Masking):
             self.select_sub_sprite(0, 2)
 
         if self.vars['up']:
-            if not self.rect.y < 0+(self.H//5):
+            if not self.rect.y < 0+(self.H//display_percent):
                 self.vars['last_dir'] = 'up'
                 self.control(y=-self.speed, x=0)
                 self.select_sub_sprite(10, 12)
@@ -294,7 +294,7 @@ class Player(pygame.sprite.Sprite, Masking):
             self.select_sub_sprite(8, 10)
 
         if self.vars['left']:
-            if not self.rect.x < 0+(self.W//5):
+            if not self.rect.x < 0+(self.W//display_percent):
                 self.vars['last_dir'] = 'left'
                 self.control(y=0, x=-self.speed)
                 self.select_sub_sprite(14, 16)

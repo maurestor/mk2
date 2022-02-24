@@ -1,5 +1,5 @@
-# Un juego de simulacion de mercados tradicioneles de Mexico
+# Un juego de simulacion de mercados tradicionales de México.
+En desarrollo
 
-## En desarrollo 
-
-Abrir con la libreria pygame el archivo main.py
+Instalar Python ^3.x
+Abrir con la libreria ^PyGame2.1 el archivo main.py

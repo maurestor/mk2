@@ -1,5 +1,5 @@
-Por ahora nada. 
+# Un juego de simulacion de mercados tradicioneles de Mexico
 
-mau_restor
+## En desarrollo 
 
-
+Abrir con la libreria pygame el archivo main.py

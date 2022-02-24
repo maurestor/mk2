@@ -2,4 +2,5 @@
 En desarrollo
 
 Instalar Python ^3.x
+
 Abrir con la libreria ^PyGame2.1 el archivo main.py

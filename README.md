@@ -16,7 +16,7 @@ mk2 es un juego educativo que simula la dinámica de los mercados tradicionales 
 
 ## Capturas de pantalla
 
-*Aquí puedes agregar imágenes o GIFs del juego en acción.*
+No hay... :(
 
 ## Instalación
 
@@ -64,8 +64,6 @@ Puedes ayudar de las siguientes formas:
 - Reportando bugs y errores.
 - Mejorando la documentación.
 - Enviando pull requests.
-
-Lee el archivo CONTRIBUTING.md *(crea uno si quieres reglas específicas)* para más detalles.
 
 ## Tareas pendientes / Roadmap
 

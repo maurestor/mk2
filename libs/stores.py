@@ -1,14 +1,19 @@
 import pygame
-from pygame import color
-from pygame import surface
+# from pygame import color # Unused
+# from pygame import surface # Unused
 from pygame.locals import *
 from .pygamextras import *
 from .items import Items
 
+# Store type constants
+STORE_TYPE_DEFAULT = None # Or a specific string like 'default_store'
+STORE_TYPE_GREEN = 'green'
+STORE_TYPE_DARK_GREEN = 'dark_green'
+
 
 class Stores(pygame.sprite.Sprite, Masking):
 
-    def __init__(self, location=[0,0], storetype=None, store_id=0):
+    def __init__(self, stores_anim_sheet_surface, location=[0,0], storetype=STORE_TYPE_DEFAULT, store_id=0): # Added stores_anim_sheet_surface, use constant
         pygame.sprite.Sprite.__init__(self)
 
         self.items = Items()
@@ -18,23 +23,32 @@ class Stores(pygame.sprite.Sprite, Masking):
         self.slide_y = 0
         self.sprites = []
 
-        self.image = pygame.image.load(asset('assets/img','stores-anim.png'))
+        # self.image = pygame.image.load(asset('assets/img','stores-anim.png')) # Removed direct loading
+        self.image_sheet = stores_anim_sheet_surface # Use the passed surface
 
-        if storetype == 'green':
-            self.sprites.append(self.image.subsurface(0, 128, 128, 128))
-        elif storetype == 'dark_green':
-            self.sprites.append(self.image.subsurface(0, 256, 128, 128))
+        if storetype == STORE_TYPE_GREEN:
+            self.sprites.append(self.image_sheet.subsurface(0, 128, 128, 128))
+        elif storetype == STORE_TYPE_DARK_GREEN:
+            self.sprites.append(self.image_sheet.subsurface(0, 256, 128, 128))
+        else: # Default store type
+            self.sprites.append(self.image_sheet.subsurface(0, 0, 128, 128))
+            self.sprites.append(self.image_sheet.subsurface(128, 0, 128, 128))
+        
+        
+        # self.sprites.append(self.image_sheet.subsurface(0, 0, 128, 128))    # Stay_R0
+        # self.sprites.append(self.image_sheet.subsurface(128, 0, 128, 128))   # Stay_R1
+
+        # The self.image will be set in the update() method or after sprite selection
+        if self.sprites:
+            self.image = self.sprites[0] # Initialize self.image with the first sprite
+            self.rect = self.image.get_rect()
         else:
-            self.sprites.append(self.image.subsurface(0, 0, 128, 128))
-            self.sprites.append(self.image.subsurface(128, 0, 128, 128))
-        
-        # self.image = pygame.image.load(asset('assets/img','stores-anim.png'))
+            # Fallback if no sprites were loaded (should not happen with correct storetype)
+            self.image = pygame.Surface((128,128)) # Placeholder
+            self.image.fill((255,0,255)) # Magenta to indicate error
+            self.rect = self.image.get_rect()
 
-
-        # self.sprites.append(self.image.subsurface(0, 0, 128, 128))    # Stay_R0
-        # self.sprites.append(self.image.subsurface(128, 0, 128, 128))   # Stay_R1
-        
-        self.rect = self.image.get_rect(top=128)
+        # self.rect = self.image.get_rect(top=128) # Old way, rect is now derived from the actual sprite
         self.rect.w = 128
         self.rect.h = 128
         # self.source_rect
@@ -142,7 +156,7 @@ class Stores(pygame.sprite.Sprite, Masking):
         
         # Render mask ##########################
         
-        mask = Masking((250, 150), debug=1)
+        mask = Masking((250, 150), debug=1) # This uses Masking from pygamextras
 
         newline_space = 15
         items_number = len(self.items.list)
@@ -254,9 +268,10 @@ class Stores(pygame.sprite.Sprite, Masking):
 
 class StoreBg(pygame.sprite.Sprite):
     '''Usar esta clase para colisionar '''
-    def __init__(self, location=[0,0], store_id=1, multi=False):
+    def __init__(self, floor_image_surface, location=[0,0], store_id=1, multi=False): # Added floor_image_surface
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(asset('assets/img', 'floor.png'))
+        # self.image = pygame.image.load(asset('assets/img', 'floor.png')) # Removed direct loading
+        self.image = floor_image_surface # Use the passed surface
         self.rect = self.image.get_rect()
         self.rect.x = location[0]
         self.rect.y = location[1]+108

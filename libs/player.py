@@ -8,17 +8,30 @@ from .pygamextras import *
 from .items import Items
 from .bg_ui_elements import Badges
 
-class YAwareGroup(pygame.sprite.Group):
-    def by_y(self, spr):
-        return spr.pos.y
+# Character type constants
+CHAR_GREEN = 'green'
+CHAR_BLUE = 'blue'
+CHAR_RED = 'red'
+CHAR_ORANGE = 'orange'
+# Alias for Spanish names if used in character_selected()
+CHAR_VERDE = 'verde'
+CHAR_AZUL = 'azul'
+CHAR_ROJO = 'rojo'
+CHAR_NARANJAS = 'nanaranjas'
 
-    def draw(self, surface):
-        sprites = self.sprites()
-        surface_blit = surface.blit
-        for spr in sorted(sprites, key=self.by_y):
-            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
-        self.lostsprites = []
-        print(self.by_y)
+
+# YAwareGroup is now imported from pygamextras
+# class YAwareGroup(pygame.sprite.Group):
+#     def by_y(self, spr):
+#         return spr.pos.y
+#
+#     def draw(self, surface):
+#         sprites = self.sprites()
+#         surface_blit = surface.blit
+#         for spr in sorted(sprites, key=self.by_y):
+#             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+#         self.lostsprites = []
+#         print(self.by_y)
 
 class Actor(pygame.sprite.Sprite):
     def __init__(self, image, pos=(200,200), surface=screen):
@@ -37,9 +50,9 @@ class Actor(pygame.sprite.Sprite):
         self.aleatorio = random.randrange(500, 999)
 
         self.sprites = []
-        self.character = character_selected()
+        self.character = character_selected() # This function from pygamextras might return Spanish names
 
-        if self.character in ('green', 'verde'):
+        if self.character in (CHAR_GREEN, CHAR_VERDE):
             # Personaje Verde
             self.sprites.append(self.image.subsurface(0, 0, 32, 64))    # Stay_R0
             self.sprites.append(self.image.subsurface(32, 0, 32, 64))   # Stay_R1
@@ -57,7 +70,7 @@ class Actor(pygame.sprite.Sprite):
             self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))  # Stay_L1
             self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))  # Walk_L0
             self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))  # Walk_L1
-        elif self.character in ('blue', 'azul'):
+        elif self.character in (CHAR_BLUE, CHAR_AZUL):
             # Personaje azul
             self.sprites.append(self.image.subsurface(0, 64, 32, 64))    
             self.sprites.append(self.image.subsurface(32, 64, 32, 64))   
@@ -75,7 +88,7 @@ class Actor(pygame.sprite.Sprite):
             self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))
             self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))
             self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
-        elif self.character in ('red', 'rojo'):
+        elif self.character in (CHAR_RED, CHAR_ROJO):
             # Personaje rojo
             self.sprites.append(self.image.subsurface(0, 128, 32, 64))    
             self.sprites.append(self.image.subsurface(32, 128, 32, 64))   
@@ -93,7 +106,7 @@ class Actor(pygame.sprite.Sprite):
             self.sprites.append(pygame.transform.flip(self.sprites[1], True, False))
             self.sprites.append(pygame.transform.flip(self.sprites[2], True, False))
             self.sprites.append(pygame.transform.flip(self.sprites[3], True, False))
-        elif self.character in ('orange', 'nanaranjas'):
+        elif self.character in (CHAR_ORANGE, CHAR_NARANJAS):
             # Personaje naranja
             self.sprites.append(self.image.subsurface(0, 192, 32, 64))    
             self.sprites.append(self.image.subsurface(32, 192, 32, 64))   
@@ -223,7 +236,7 @@ class Player(Actor, Masking):
         badge = ActionBadges()
         self.badge_draw(badge.drawbadge())
         
-        mask = Masking(size)
+        mask = Masking(size) # This will use Masking from pygamextras due to import *
 
         newline_space = 15
         items_number = len(self.items.list)

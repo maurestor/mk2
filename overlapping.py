@@ -51,17 +51,18 @@ class Player(Actor):
         elif mouse[0] == False:
             moving = False
 
-
-class YAwareGroup(pygame.sprite.Group):
-    def by_y(self, spr):
-        return spr.pos.y
-
-    def draw(self, surface):
-        sprites = self.sprites()
-        surface_blit = surface.blit
-        for spr in sorted(sprites, key=self.by_y):
-            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
-        self.lostsprites = []
+# YAwareGroup should be imported from libs.pygamextras if this script is integrated
+# or run in an environment where libs package is available.
+# class YAwareGroup(pygame.sprite.Group):
+#     def by_y(self, spr):
+#         return spr.pos.y
+#
+#     def draw(self, surface):
+#         sprites = self.sprites()
+#         surface_blit = surface.blit
+#         for spr in sorted(sprites, key=self.by_y):
+#             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+#         self.lostsprites = []
 
 
 def main():

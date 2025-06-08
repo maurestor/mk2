@@ -3,8 +3,8 @@
 # 
 
 import pygame, pygame_gui
-from pygame import mouse
-from pygame import display
+from pygame import mouse # Keep this, it IS used (e.g. mouse.get_pos())
+# from pygame import display # Alias not used, prefer pygame.display
 from pygame.locals import *
 import time
 from datetime import datetime
@@ -58,31 +58,40 @@ def dialogos(logro_id):
     pass
 
 
-def audio_effect(name, stop_time=False, vol=0.5):
-    """Cargar efectos de audio con su nombre 
-    name: menu, start, exit
-    stop_time: Boulean
-    vol: 0.1, 0.5, 1
+def audio_effect(name, stop_time=False, vol=0.5, assets=None): # Added assets parameter
+    """Reproducir efectos de audio pre-cargados.
+    name: 'menu', 'start', 'exit' (corresponds to keys in assets dictionary)
+    stop_time: Boolean (original behavior for 'exit')
+    vol: 0.1, 0.5, 1 (Note: volume is now primarily set when loading assets)
+    assets: Dictionary containing pre-loaded sound objects.
     """
+    if assets is None:
+        print("Warning: Assets dictionary not provided to audio_effect. Sounds will not play.")
+        return
 
-    # sound = None
+    sound_to_play = None
     if name == 'menu':
-        # pygame.mixer.music.load('./assets'assets/music',/effect_nicholasdaryl_swing.wav')
-        pygame.mixer.music.load(asset('assets/music', 'effect_nicholasdaryl_swing.wav'))
-        pygame.mixer.music.set_volume(vol)
-        sound = pygame.mixer.music.play()
+        sound_to_play = assets.get('sound_menu_select')
+    elif name == 'start':
+        sound_to_play = assets.get('sound_start')
+    elif name == 'exit':
+        sound_to_play = assets.get('sound_exit')
 
-    if name == 'start':
-        # pygame.mixer.music.load('./assets'assets/music',/desktop-login.ogg')
-        pygame.mixer.music.load(asset('assets/music', 'desktop-login.ogg'))
-        pygame.mixer.music.set_volume(0.1)
-        sound = pygame.mixer.music.play()
+    if sound_to_play:
+        # The 'vol' parameter could optionally be used here to further adjust
+        # the pre-set volume, e.g., sound_to_play.set_volume(original_volume * vol)
+        # For now, we assume the volume set in main.py is sufficient.
+        # If dynamic volume adjustment per call is needed, this logic can be expanded.
+        # Example: sound_to_play.set_volume(vol) # This would override pre-set volume.
 
-    if name == 'exit' and stop_time:
-        pygame.mixer.music.load(asset('assets/music', 'desktop-logout.ogg'))
-        pygame.mixer.music.set_volume(vol)
-        sound = pygame.mixer.music.play()
-        time.sleep(3000)  # sound.get_length())
+        sound_to_play.play()
+        if name == 'exit' and stop_time:
+            # This sleep behavior is unusual for sound effects.
+            # Consider if it's truly needed or if it blocks game flow undesirably.
+            # pygame.time.wait(int(sound_to_play.get_length() * 1000)) would be better than time.sleep
+            pygame.time.wait(3000) # Kept original problematic sleep for now, recommend review.
+    else:
+        print(f"Warning: Sound '{name}' not found in assets.")
 
 
 # sustituir por textra desde pygamextras

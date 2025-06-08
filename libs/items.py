@@ -6,30 +6,56 @@ from random import randint
 # from .bg_ui_elements import Badges
 
 
+import json # Added import for json
+from .pygamextras import asset # Assuming asset can find files, might need adjustment if not
+
 # class Items(pg.sprite.Sprite):
 class Items(pg.sprite.Sprite):
-    def __init__(self, image='items_lvls.png'):
+    def __init__(self, items_filepath='items.json'): # Allow filepath override
         '''Lista de items de los puestos del mercadito
         mezclar con algo de est o prob...'''
-        # pg.sprite.Sprite.__init__(self)
-        # self.image = image
-        # self.location = location
+        super().__init__() # Added super call
 
-        # self.items = enumerate(self.items)
+        self.filepath = items_filepath
+        self.list = self._load_items()
 
-        self.list = [{"id":0, "name":"money", "quantity":500, "quality":0, "cat":0, "cost":1.00,}]
-        self.newline_space = 15
+        self.newline_space = 15 # Keep this if used by drawing methods
         self.items_number = len(self.list)
-        self.items_height = (self.newline_space * self.items_number) - self.newline_space * 2
-        self.slide_y = 10
-        # self.btn_plus = ()
-        # self.btn_minu = ()
+        self.items_height = (self.newline_space * self.items_number) - self.newline_space * 2 # Recalculate
+        self.slide_y = 10 # Keep if used by drawing methods
 
-        self.mont = 0
-        self.gen_items()
+        self.mont = 0 # Keep if used by drawing methods
+
+        # self.gen_items() # Comment out for now, as it replaces the loaded list.
+                        # The logic in gen_items might be adapted later if needed
+                        # to randomize properties of the loaded items.
+
+    def _load_items(self):
+        try:
+            # Construct the absolute path to items.json in the project root
+            # Assuming this script is in libs/, so one level up to project root.
+            # This might need adjustment based on actual project structure and how asset() works.
+            # For now, let's try a direct relative path from project root perspective.
+            # If using asset(), ensure it can resolve 'items.json' from the root.
+            # path_to_json = asset(filename=self.filepath) # If asset() can find root files
+
+            # Simpler: Assume items.json is in the root for now when running main.py from root
+            with open(self.filepath, 'r', encoding='utf-8') as f: # Added encoding
+                items_data = json.load(f)
+            # Assuming items.json contains a list of items directly
+            return items_data
+        except FileNotFoundError:
+            print(f"Error: Items file not found at {self.filepath}")
+            return [{"id":0, "name":"Error - File Not Found", "quantity":0, "quality":0, "cat":0, "cost":0.00}] # Default error item
+        except json.JSONDecodeError:
+            print(f"Error: Could not decode JSON from {self.filepath}")
+            return [{"id":0, "name":"Error - JSON Decode", "quantity":0, "quality":0, "cat":0, "cost":0.00}] # Default error item
+        except Exception as e:
+            print(f"An unexpected error occurred while loading items: {e}")
+            return []
 
 
-    def gen_items(self):
+    def gen_items(self): # This method is currently not called from __init__
         pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(self.list)
 

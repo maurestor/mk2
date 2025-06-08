@@ -8,15 +8,21 @@ from .stores import Stores, StoreBg
 
 
 class Background:
-    def __init__(self):
+    def __init__(self, assets): # Added assets parameter
         """Renderizando fondo, se mueve cuando el juagdor toca el border
         """
+        self.assets = assets # Store the assets dictionary
 
         # Asignado atributos del renderizado
-        self.tile_floor = pygame.image.load(asset('assets/img', 'floor.png'))
-        self.tile_store = pygame.image.load(asset('assets/img', 'store_only.png'))
-        self.image = pygame.image.load(asset('assets/img', 'background_road.png')).convert_alpha()
-        self.tile_bg = pygame.image.load(asset('assets/img', 'background_road.png')).convert_alpha()
+        # self.tile_floor = pygame.image.load(asset('assets/img', 'floor.png')) # Use from assets
+        # self.tile_store = pygame.image.load(asset('assets/img', 'store_only.png')) # This seems unused for Stores/StoreBg, keep for now or remove if confirmed
+        self.tile_floor = self.assets['floor_image']
+        # If 'store_only.png' is needed for something else, it should also be pre-loaded.
+        # For now, assuming it's not directly used by Stores/StoreBg which use stores_anim_sheet
+        self.tile_store = pygame.image.load(asset('assets/img', 'store_only.png')).convert_alpha() # Keep for now, or add to assets if used
+
+        self.image = pygame.image.load(asset('assets/img', 'background_road.png')).convert_alpha() # This is the main background tile
+        self.tile_bg = self.image # Use the already loaded image
         self.rect = self.image.get_rect()
         self.sprites = []
         self.sprites.append(self.image.subsurface(0, 0, 128, 128))
@@ -146,13 +152,14 @@ x y  zx
             '''Metodo de renderizado de tienda...'''
             self.store_pos = pygame.Vector2([x*128+posone[0], (y*128)+posone[1]])
 
-            store = Stores([x*128+posone[0], (y*128)+posone[1]], tipo)
+            # Pass pre-loaded surfaces to Stores and StoreBg constructors
+            store = Stores(self.assets['stores_anim_sheet'], location=[x*128+posone[0], (y*128)+posone[1]], storetype=tipo)
             self.store_group.add(store)
 
-            store_bg = StoreBg([store.rect.x, store.rect.y])
+            store_bg = StoreBg(self.assets['floor_image'], location=[store.rect.x, store.rect.y])
             self.store_group.add(store_bg)
             
-            # screen.blit(tile_floor, (x*128+posone[0], (y*128)+108+posone[1]))
+            # screen.blit(self.tile_floor, (x*128+posone[0], (y*128)+108+posone[1])) # Use self.tile_floor
 
             # screen.blit(tile_store, (x*128+posone[0], y*128+posone[1]))
             
